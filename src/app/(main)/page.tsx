@@ -1,0 +1,162 @@
+import Link from "next/link";
+import { Star, MapPin } from "lucide-react";
+import ProductCard from "@/components/shop/ProductCard";
+import { categories, products, shops } from "@/data/mock";
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string; q?: string }>;
+}) {
+  const { category, q } = await searchParams;
+
+  const filtered = products.filter((p) => {
+    const matchCat = category ? p.category === category : true;
+    const matchQ = q ? p.name.toLowerCase().includes(q.toLowerCase()) : true;
+    return matchCat && matchQ;
+  });
+
+  return (
+    <div>
+      {/* Hero */}
+      <section className="bg-primary">
+        <div className="mx-auto max-w-7xl px-4 py-14 text-center">
+          <h1 className="text-3xl font-extrabold text-white md:text-5xl">
+            Apon manush, apon dokan
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-white/80 md:text-base">
+            Tomar paray local dokan theke taja product, sohoje ghore boshe.
+          </p>
+          <form action="/" className="mx-auto mt-6 flex max-w-xl overflow-hidden rounded-full bg-white shadow-lg">
+            <input
+              name="q"
+              defaultValue={q}
+              placeholder="Ki khujcho? tomato, fish, milk..."
+              className="w-full px-5 py-3 text-sm outline-none"
+            />
+            <button className="bg-accent px-6 text-sm font-semibold text-white hover:opacity-90">
+              Search
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Banners */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl bg-accent-light p-6">
+            <p className="text-xs font-semibold uppercase text-accent">Fresh Today</p>
+            <h3 className="mt-1 text-xl font-bold text-gray-900">Taja sabji, sotti dam</h3>
+            <p className="mt-1 text-sm text-gray-600">Prottidin price update dekho.</p>
+          </div>
+          <div className="rounded-2xl bg-primary-light p-6">
+            <p className="text-xs font-semibold uppercase text-primary">Price Watch</p>
+            <h3 className="mt-1 text-xl font-bold text-gray-900">Ager dinér dam er sathe tulona</h3>
+            <p className="mt-1 text-sm text-gray-600">Dam barlo na komlo, ek nojore.</p>
+          </div>
+          <div className="rounded-2xl bg-blue-50 p-6">
+            <p className="text-xs font-semibold uppercase text-blue-600">Local Shops</p>
+            <h3 className="mt-1 text-xl font-bold text-gray-900">Nijer paray er dokan</h3>
+            <p className="mt-1 text-sm text-gray-600">Review dekhe bhalo dokan beche nao.</p>
+          </div>
+        </div>
+
+        {/* Categories + products */}
+        <div id="products" className="mt-10 grid gap-8 lg:grid-cols-[230px_1fr]">
+          {/* Sidebar (desktop) */}
+          <aside className="hidden h-fit rounded-2xl border border-black/5 bg-white p-2 lg:block">
+            <Link
+              href="/"
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
+                !category ? "bg-primary-light text-primary-dark" : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <span className="text-lg">🧺</span> All Products
+            </Link>
+            {categories.map((c) => (
+              <Link
+                key={c.name}
+                href={`/?category=${c.name}`}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
+                  category === c.name ? "bg-primary-light text-primary-dark" : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span className="text-lg">{c.emoji}</span> {c.name}
+              </Link>
+            ))}
+          </aside>
+
+          <section>
+            {/* Category chips (mobile) */}
+            <div className="mb-4 flex gap-2 overflow-x-auto pb-2 lg:hidden">
+              <Link href="/" className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${!category ? "bg-primary text-white" : "bg-white text-gray-700"}`}>
+                All
+              </Link>
+              {categories.map((c) => (
+                <Link
+                  key={c.name}
+                  href={`/?category=${c.name}`}
+                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${category === c.name ? "bg-primary text-white" : "bg-white text-gray-700"}`}
+                >
+                  {c.emoji} {c.name}
+                </Link>
+              ))}
+            </div>
+
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">
+                {category ?? "All Products"}
+                {q && <span className="ml-2 text-sm font-normal text-gray-500">for "{q}"</span>}
+              </h2>
+              <span className="text-sm text-gray-500">{filtered.length} items</span>
+            </div>
+
+            {filtered.length === 0 ? (
+              <div className="rounded-2xl bg-white p-10 text-center text-gray-500">
+                Kono product paoa jayni 😕
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                {filtered.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* Popular shops */}
+        <section className="mt-14">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">Popular Shops</h2>
+            <Link href="/shops" className="text-sm font-semibold text-primary hover:underline">
+              View all
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {shops.map((s) => (
+              <Link
+                key={s.id}
+                href={`/shops/${s.id}`}
+                className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm transition hover:shadow-md"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-light text-2xl">
+                  {s.emoji}
+                </div>
+                <h3 className="mt-3 font-semibold text-gray-900">{s.name}</h3>
+                <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                  <MapPin size={12} /> {s.area}
+                </p>
+                <p className="mt-2 flex items-center gap-1 text-sm">
+                  <Star size={14} className="fill-accent text-accent" />
+                  <span className="font-semibold">{s.rating}</span>
+                  <span className="text-gray-400">({s.reviews})</span>
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
