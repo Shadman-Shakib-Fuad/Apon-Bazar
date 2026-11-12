@@ -6,6 +6,7 @@ import { formatPrice, priceDiff } from "@/lib/utils";
 import PriceHistoryChart from "@/components/shop/PriceHistoryChart";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import ProductCard from "@/components/shop/ProductCard";
+export const dynamic = "force-dynamic";
 
 export default async function ProductPage({
   params,

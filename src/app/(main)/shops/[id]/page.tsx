@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
 import { Star, MapPin, Truck, AlertTriangle } from "lucide-react";
 import ProductCard from "@/components/shop/ProductCard";
+import ReviewSection from "@/components/shop/ReviewSection";
+import ReportButton from "@/components/shop/ReportButton";
 import { getShop, getProducts } from "@/lib/data";
+import { getReviews } from "@/lib/queries";
 import { formatPrice } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export default async function ShopPage({
   params,
@@ -13,7 +18,10 @@ export default async function ShopPage({
   const shop = await getShop(id);
   if (!shop) notFound();
 
-  const shopProducts = await getProducts({ shopId: shop.id });
+  const [shopProducts, reviews] = await Promise.all([
+    getProducts({ shopId: shop.id }),
+    getReviews(shop.id),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -35,6 +43,7 @@ export default async function ShopPage({
               <Truck size={15} /> Delivery {formatPrice(shop.deliveryCharge)}
             </span>
           </div>
+          <ReportButton shopId={shop.id} />
         </div>
       </div>
 
@@ -52,6 +61,8 @@ export default async function ShopPage({
           <ProductCard key={p.id} product={p} />
         ))}
       </div>
+
+      <ReviewSection shopId={shop.id} reviews={reviews} />
     </div>
   );
 }

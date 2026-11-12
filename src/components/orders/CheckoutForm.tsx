@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useTransition, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/CartProvider";
-import { addOrder, Order } from "@/lib/orders";
+import { placeOrder } from "@/app/actions";
+import { addMyOrderId } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 
 export default function CheckoutForm({ shopId }: { shopId: string }) {
@@ -12,6 +13,8 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
   const router = useRouter();
   const [deliveryType, setDeliveryType] = useState<"home" | "pickup">("home");
   const [form, setForm] = useState({ name: "", phone: "", address: "" });
+  const [error, setError] = useState("");
+  const [pending, startTransition] = useTransition();
 
   const shopItems = items.filter((i) => i.shopId === shopId);
   const first = shopItems[0];
@@ -33,26 +36,25 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const now = new Date().toISOString();
-    const order: Order = {
-      id: `AB${Date.now().toString().slice(-6)}`,
-      shopId,
-      shopName: first.shopName,
-      items: shopItems,
-      subtotal,
-      deliveryCharge,
-      total,
-      deliveryType,
-      customerName: form.name,
-      phone: form.phone,
-      address: deliveryType === "home" ? form.address : "Shop pickup",
-      statusIndex: 0,
-      history: [now],
-      createdAt: now,
-    };
-    addOrder(order);
-    clearShop(shopId);
-    router.push("/orders");
+    setError("");
+    startTransition(async () => {
+      const res = await placeOrder({
+        shopId,
+        items: shopItems.map((i) => ({ productId: i.productId, qty: i.qty })),
+        deliveryType,
+        customerName: form.name,
+        phone: form.phone,
+        address: form.address,
+      });
+
+      if (res.ok) {
+        addMyOrderId(res.id);
+        clearShop(shopId);
+        router.push("/orders");
+      } else {
+        setError(res.error);
+      }
+    });
   }
 
   const input =
@@ -80,34 +82,16 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
           ))}
         </div>
 
-        <input
-          required
-          placeholder="Full name"
-          className={input}
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
-        <input
-          required
-          placeholder="Phone number"
-          className={input}
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-        />
+        <input required placeholder="Full name" className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <input required placeholder="Phone number" className={input} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
         {deliveryType === "home" && (
-          <textarea
-            required
-            placeholder="Full address"
-            rows={3}
-            className={input}
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-          />
+          <textarea required placeholder="Full address" rows={3} className={input} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
         )}
 
         <p className="rounded-xl bg-accent-light p-3 text-xs text-gray-600">
-          💳 Stripe payment pore add korbo. Ekhon demo order hishebe save hobe.
+          💳 Stripe payment pore add korbo. Ekhon order database e save hobe.
         </p>
+        {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
       </div>
 
       <div className="h-fit rounded-3xl border border-black/5 bg-white p-6">
@@ -115,29 +99,21 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
         <div className="mt-3 space-y-2 text-sm">
           {shopItems.map((i) => (
             <div key={i.productId} className="flex justify-between text-gray-600">
-              <span>
-                {i.name} x {i.qty}
-              </span>
+              <span>{i.name} x {i.qty}</span>
               <span>{formatPrice(i.price * i.qty)}</span>
             </div>
           ))}
         </div>
         <div className="mt-4 space-y-1 border-t border-gray-100 pt-4 text-sm">
-          <div className="flex justify-between text-gray-600">
-            <span>Subtotal</span>
-            <span>{formatPrice(subtotal)}</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>Delivery</span>
-            <span>{formatPrice(deliveryCharge)}</span>
-          </div>
-          <div className="flex justify-between text-base font-bold text-gray-900">
-            <span>Total</span>
-            <span>{formatPrice(total)}</span>
-          </div>
+          <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+          <div className="flex justify-between text-gray-600"><span>Delivery</span><span>{formatPrice(deliveryCharge)}</span></div>
+          <div className="flex justify-between text-base font-bold text-gray-900"><span>Total</span><span>{formatPrice(total)}</span></div>
         </div>
-        <button className="mt-5 w-full rounded-full bg-primary py-3 font-semibold text-white hover:bg-primary-dark">
-          Place order
+        <button
+          disabled={pending}
+          className="mt-5 w-full rounded-full bg-primary py-3 font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
+        >
+          {pending ? "Order hocche..." : "Place order"}
         </button>
       </div>
     </form>

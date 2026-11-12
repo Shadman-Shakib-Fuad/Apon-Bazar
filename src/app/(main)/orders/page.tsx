@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, RefreshCw } from "lucide-react";
 import OrderTimeline from "@/components/orders/OrderTimeline";
-import { Order, ORDER_STEPS, getOrders, saveOrders } from "@/lib/orders";
+import { getOrdersByIds } from "@/app/actions";
+import { ORDER_STEPS, getMyOrderIds } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
+import type { OrderView } from "@/types";
 
 const badge = [
   "bg-gray-100 text-gray-700",
@@ -16,31 +18,38 @@ const badge = [
 ];
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderView[]>([]);
+  const [loading, setLoading] = useState(true);
   const [tracking, setTracking] = useState<string | null>(null);
 
-  useEffect(() => {
-    setOrders(getOrders());
+  const load = useCallback(async () => {
+    setLoading(true);
+    const ids = getMyOrderIds();
+    setOrders(ids.length ? await getOrdersByIds(ids) : []);
+    setLoading(false);
   }, []);
 
-  // Demo button: pore seller panel theke status update hobe
-  function advance(id: string) {
-    const updated = orders.map((o) =>
-      o.id === id && o.statusIndex < ORDER_STEPS.length - 1
-        ? { ...o, statusIndex: o.statusIndex + 1, history: [...o.history, new Date().toISOString()] }
-        : o
-    );
-    setOrders(updated);
-    saveOrders(updated);
-  }
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const trackedOrder = orders.find((o) => o.id === tracking);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-extrabold text-gray-900">My Orders</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-extrabold text-gray-900">My Orders</h1>
+        <button
+          onClick={load}
+          className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+        >
+          <RefreshCw size={14} /> Refresh
+        </button>
+      </div>
 
-      {orders.length === 0 ? (
+      {loading ? (
+        <p className="mt-10 text-center text-sm text-gray-400">Loading...</p>
+      ) : orders.length === 0 ? (
         <div className="mt-10 rounded-3xl bg-white p-12 text-center">
           <ClipboardList size={48} className="mx-auto text-gray-300" />
           <p className="mt-3 text-gray-600">Ekhono kono order nai</p>
@@ -54,7 +63,7 @@ export default function OrdersPage() {
             <div key={o.id} className="rounded-3xl border border-black/5 bg-white p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="font-bold text-gray-900">Order #{o.id}</p>
+                  <p className="font-bold text-gray-900">Order #{o.code}</p>
                   <p className="text-xs text-gray-500">
                     {o.shopName} · {new Date(o.createdAt).toLocaleDateString("en-GB")}
                   </p>
@@ -74,21 +83,12 @@ export default function OrdersPage() {
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
                 <p className="font-bold text-gray-900">Total: {formatPrice(o.total)}</p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => advance(o.id)}
-                    disabled={o.statusIndex === ORDER_STEPS.length - 1}
-                    className="rounded-full border border-dashed border-gray-300 px-3 py-2 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-40"
-                  >
-                    Demo: next status
-                  </button>
-                  <button
-                    onClick={() => setTracking(o.id)}
-                    className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
-                  >
-                    Track order
-                  </button>
-                </div>
+                <button
+                  onClick={() => setTracking(o.id)}
+                  className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+                >
+                  Track order
+                </button>
               </div>
             </div>
           ))}

@@ -1,7 +1,8 @@
 "use client";
 
 import { Check, X, Package, CalendarDays } from "lucide-react";
-import { Order, ORDER_STEPS } from "@/lib/orders";
+import { ORDER_STEPS } from "@/lib/orders";
+import type { OrderView as Order } from "@/types";
 
 const descriptions = [
   "We have received your order",
@@ -43,7 +44,7 @@ export default function OrderTimeline({
           <X size={22} />
         </button>
 
-        <h2 className="text-xl font-extrabold text-gray-900">Track order #{order.id}</h2>
+        <h2 className="text-xl font-extrabold text-gray-900">Track order #{order.code}</h2>
         <p className="mt-1 text-sm text-gray-500">{order.shopName}</p>
 
         <div className="mt-5 grid grid-cols-2 gap-3">

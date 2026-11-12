@@ -7,6 +7,7 @@ const OrderItemSchema = new Schema(
     emoji: { type: String },
     unit: { type: String },
     price: { type: Number, required: true },
+    costPrice: { type: Number, default: 0 }, // seller er profit hishab er jonno
     qty: { type: Number, required: true, min: 1 },
   },
   { _id: false }

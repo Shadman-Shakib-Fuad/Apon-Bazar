@@ -1,5 +1,3 @@
-import type { CartItem } from "@/components/cart/CartProvider";
-
 export const ORDER_STEPS = [
   "Placed",
   "Confirmed",
@@ -8,26 +6,10 @@ export const ORDER_STEPS = [
   "Delivered",
 ] as const;
 
-export type Order = {
-  id: string;
-  shopId: string;
-  shopName: string;
-  items: CartItem[];
-  subtotal: number;
-  deliveryCharge: number;
-  total: number;
-  deliveryType: "home" | "pickup";
-  customerName: string;
-  phone: string;
-  address: string;
-  statusIndex: number;
-  history: string[];
-  createdAt: string;
-};
+// Login na thaka porjonto, ei browser er order id gulo localStorage e rakhi
+const KEY = "apon-bazar-my-orders";
 
-const KEY = "apon-bazar-orders";
-
-export function getOrders(): Order[] {
+export function getMyOrderIds(): string[] {
   if (typeof window === "undefined") return [];
   try {
     return JSON.parse(localStorage.getItem(KEY) ?? "[]");
@@ -36,10 +18,7 @@ export function getOrders(): Order[] {
   }
 }
 
-export function saveOrders(orders: Order[]) {
-  localStorage.setItem(KEY, JSON.stringify(orders));
-}
-
-export function addOrder(order: Order) {
-  saveOrders([order, ...getOrders()]);
+export function addMyOrderId(id: string) {
+  const ids = getMyOrderIds();
+  localStorage.setItem(KEY, JSON.stringify([id, ...ids]));
 }

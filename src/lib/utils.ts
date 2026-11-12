@@ -30,3 +30,12 @@ export function getPriceHistory(price: number, yesterday: number) {
 
   return { points, ups, downs };
 }
+
+// Rating 3 er niche ba 5+ pending report hole "Under review"
+export function isUnderReview(s: {
+  rating: number;
+  reviewCount: number;
+  pendingReports: number;
+}) {
+  return (s.reviewCount > 0 && s.rating < 3) || s.pendingReports >= 5;
+}
