@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { Star, MapPin, Truck } from "lucide-react";
-import { shops } from "@/data/mock";
+import { getShops } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 
-export default function ShopsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ShopsPage() {
+  const shops = await getShops();
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="text-2xl font-extrabold text-gray-900">All Shops</h1>
@@ -21,7 +25,9 @@ export default function ShopsPage() {
                 {s.emoji}
               </div>
               {s.status === "restricted" && (
-                <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-600">Restricted</span>
+                <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-600">
+                  Restricted
+                </span>
               )}
             </div>
             <h2 className="mt-3 text-lg font-bold text-gray-900">{s.name}</h2>
@@ -32,7 +38,7 @@ export default function ShopsPage() {
               <span className="flex items-center gap-1">
                 <Star size={15} className="fill-accent text-accent" />
                 <b>{s.rating}</b>
-                <span className="text-gray-400">({s.reviews} reviews)</span>
+                <span className="text-gray-400">({s.reviewCount} reviews)</span>
               </span>
               <span className="flex items-center gap-1 text-gray-500">
                 <Truck size={14} /> {formatPrice(s.deliveryCharge)}

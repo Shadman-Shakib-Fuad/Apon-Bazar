@@ -3,19 +3,20 @@
 import { useState } from "react";
 import { ShoppingCart, Check } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
-import { Product, shops } from "@/data/mock";
+import type { ProductView } from "@/types";
 
-export default function AddToCartButton({ product }: { product: Product }) {
+export default function AddToCartButton({ product }: { product: ProductView }) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
-  const shop = shops.find((s) => s.id === product.shopId);
-  const unavailable = product.stock === 0 || shop?.status === "restricted";
+  const unavailable = product.stock === 0 || product.shopStatus === "restricted";
 
   function handleAdd() {
     addItem({
       productId: product.id,
       shopId: product.shopId,
-      shopName: shop?.name ?? "",
+      shopName: product.shopName,
+      shopEmoji: product.shopEmoji,
+      deliveryCharge: product.deliveryCharge,
       name: product.name,
       price: product.price,
       emoji: product.emoji,

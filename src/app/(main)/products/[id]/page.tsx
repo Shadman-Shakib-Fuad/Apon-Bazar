@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TrendingUp, TrendingDown, Store } from "lucide-react";
-import { products, shops } from "@/data/mock";
-import { formatPrice, getPriceHistory, priceDiff } from "@/lib/utils";
+import { getProduct, getProducts, getPriceHistory } from "@/lib/data";
+import { formatPrice, priceDiff } from "@/lib/utils";
 import PriceHistoryChart from "@/components/shop/PriceHistoryChart";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import ProductCard from "@/components/shop/ProductCard";
@@ -13,15 +13,15 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = await getProduct(id);
   if (!product) notFound();
 
-  const shop = shops.find((s) => s.id === product.shopId);
   const diff = priceDiff(product.price, product.yesterdayPrice);
-  const { points, ups, downs } = getPriceHistory(product.price, product.yesterdayPrice);
-  const related = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
+  const [{ points, ups, downs }, sameCategory] = await Promise.all([
+    getPriceHistory(product.id),
+    getProducts({ category: product.category }),
+  ]);
+  const related = sameCategory.filter((p) => p.id !== product.id).slice(0, 4);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -38,7 +38,7 @@ export default async function ProductPage({
             href={`/shops/${product.shopId}`}
             className="mt-2 inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary"
           >
-            <Store size={16} /> {shop?.name}
+            <Store size={16} /> {product.shopName}
           </Link>
 
           <p className="mt-5 text-4xl font-extrabold text-gray-900">
@@ -61,7 +61,9 @@ export default async function ProductPage({
               </span>
             )}
             {diff === 0 && (
-              <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-500">No change today</span>
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-500">
+                No change today
+              </span>
             )}
           </div>
 
@@ -80,8 +82,12 @@ export default async function ProductPage({
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-gray-900">Price History (last 7 days)</h2>
           <div className="flex gap-2 text-xs font-medium">
-            <span className="rounded-full bg-red-50 px-3 py-1 text-red-600">Increased {ups} times</span>
-            <span className="rounded-full bg-green-50 px-3 py-1 text-green-700">Decreased {downs} times</span>
+            <span className="rounded-full bg-red-50 px-3 py-1 text-red-600">
+              Increased {ups} times
+            </span>
+            <span className="rounded-full bg-green-50 px-3 py-1 text-green-700">
+              Decreased {downs} times
+            </span>
           </div>
         </div>
         <PriceHistoryChart data={points} />

@@ -6,6 +6,8 @@ export type CartItem = {
   productId: string;
   shopId: string;
   shopName: string;
+  shopEmoji: string;
+  deliveryCharge: number;
   name: string;
   price: number;
   emoji: string;

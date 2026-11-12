@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
-import { shops } from "@/data/mock";
 import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
@@ -16,7 +15,10 @@ export default function CartPage() {
         <ShoppingBag size={56} className="mx-auto text-gray-300" />
         <h1 className="mt-4 text-xl font-bold text-gray-900">Tomar cart faka</h1>
         <p className="mt-1 text-sm text-gray-500">Kichu product add koro</p>
-        <Link href="/" className="mt-6 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-dark">
+        <Link
+          href="/"
+          className="mt-6 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-dark"
+        >
           Shopping shuru koro
         </Link>
       </div>
@@ -32,15 +34,15 @@ export default function CartPage() {
 
       <div className="mt-6 space-y-6">
         {shopIds.map((shopId) => {
-          const shop = shops.find((s) => s.id === shopId);
           const shopItems = items.filter((i) => i.shopId === shopId);
+          const first = shopItems[0];
           const subtotal = shopItems.reduce((sum, i) => sum + i.price * i.qty, 0);
-          const delivery = shop?.deliveryCharge ?? 0;
+          const delivery = first.deliveryCharge ?? 0;
 
           return (
             <div key={shopId} className="rounded-3xl border border-black/5 bg-white p-5">
               <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span>{shop?.emoji}</span> {shop?.name}
+                <span>{first.shopEmoji}</span> {first.shopName}
               </h2>
 
               <div className="mt-4 divide-y divide-gray-100">
@@ -70,8 +72,13 @@ export default function CartPage() {
                         <Plus size={14} />
                       </button>
                     </div>
-                    <p className="w-20 text-right font-semibold">{formatPrice(item.price * item.qty)}</p>
-                    <button onClick={() => removeItem(item.productId)} className="text-gray-400 hover:text-red-500">
+                    <p className="w-20 text-right font-semibold">
+                      {formatPrice(item.price * item.qty)}
+                    </p>
+                    <button
+                      onClick={() => removeItem(item.productId)}
+                      className="text-gray-400 hover:text-red-500"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </div>
@@ -94,7 +101,7 @@ export default function CartPage() {
                 href={`/checkout?shop=${shopId}`}
                 className="mt-4 block rounded-full bg-accent py-3 text-center font-semibold text-white hover:opacity-90"
               >
-                Checkout ({shop?.name})
+                Checkout ({first.shopName})
               </Link>
             </div>
           );

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Star, MapPin, Truck, AlertTriangle } from "lucide-react";
-import { products, shops } from "@/data/mock";
 import ProductCard from "@/components/shop/ProductCard";
+import { getShop, getProducts } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 
 export default async function ShopPage({
@@ -10,10 +10,10 @@ export default async function ShopPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const shop = shops.find((s) => s.id === id);
+  const shop = await getShop(id);
   if (!shop) notFound();
 
-  const shopProducts = products.filter((p) => p.shopId === shop.id);
+  const shopProducts = await getProducts({ shopId: shop.id });
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -24,12 +24,16 @@ export default async function ShopPage({
         <div className="flex-1">
           <h1 className="text-2xl font-extrabold text-gray-900">{shop.name}</h1>
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
-            <span className="flex items-center gap-1"><MapPin size={15} /> {shop.area}</span>
+            <span className="flex items-center gap-1">
+              <MapPin size={15} /> {shop.area}
+            </span>
             <span className="flex items-center gap-1">
               <Star size={15} className="fill-accent text-accent" />
-              <b>{shop.rating}</b> ({shop.reviews} reviews)
+              <b>{shop.rating}</b> ({shop.reviewCount} reviews)
             </span>
-            <span className="flex items-center gap-1"><Truck size={15} /> Delivery {formatPrice(shop.deliveryCharge)}</span>
+            <span className="flex items-center gap-1">
+              <Truck size={15} /> Delivery {formatPrice(shop.deliveryCharge)}
+            </span>
           </div>
         </div>
       </div>
@@ -40,7 +44,9 @@ export default async function ShopPage({
         </div>
       )}
 
-      <h2 className="mb-4 mt-8 text-xl font-bold text-gray-900">Products ({shopProducts.length})</h2>
+      <h2 className="mb-4 mt-8 text-xl font-bold text-gray-900">
+        Products ({shopProducts.length})
+      </h2>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
         {shopProducts.map((p) => (
           <ProductCard key={p.id} product={p} />

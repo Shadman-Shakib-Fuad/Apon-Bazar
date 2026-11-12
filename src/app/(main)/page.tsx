@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, MapPin } from "lucide-react";
 import ProductCard from "@/components/shop/ProductCard";
-import { categories, products, shops } from "@/data/mock";
+import { categories } from "@/data/mock";
+import { getProducts, getShops } from "@/lib/data";
 
 export default async function Home({
   searchParams,
@@ -10,12 +11,7 @@ export default async function Home({
   searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const { category, q } = await searchParams;
-
-  const filtered = products.filter((p) => {
-    const matchCat = category ? p.category === category : true;
-    const matchQ = q ? p.name.toLowerCase().includes(q.toLowerCase()) : true;
-    return matchCat && matchQ;
-  });
+  const [filtered, shops] = await Promise.all([getProducts({ category, q }), getShops()]);
 
   return (
     <div>
@@ -29,7 +25,6 @@ export default async function Home({
           sizes="100vw"
           className="object-cover"
         />
-        {/* Text pora jaate bhalo hoy, tai halka dark layer */}
         <div className="absolute inset-0 bg-black/40" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-20 text-center md:py-28">
@@ -78,7 +73,6 @@ export default async function Home({
 
         {/* Categories + products */}
         <div id="products" className="mt-10 grid gap-8 lg:grid-cols-[230px_1fr]">
-          {/* Sidebar (desktop) */}
           <aside className="hidden h-fit rounded-2xl border border-black/5 bg-white p-2 lg:block">
             <Link
               href="/"
@@ -104,7 +98,6 @@ export default async function Home({
           </aside>
 
           <section>
-            {/* Category chips (mobile) */}
             <div className="mb-4 flex gap-2 overflow-x-auto pb-2 lg:hidden">
               <Link
                 href="/"
@@ -162,7 +155,7 @@ export default async function Home({
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {shops.map((s) => (
+            {shops.slice(0, 4).map((s) => (
               <Link
                 key={s.id}
                 href={`/shops/${s.id}`}
@@ -178,7 +171,7 @@ export default async function Home({
                 <p className="mt-2 flex items-center gap-1 text-sm">
                   <Star size={14} className="fill-accent text-accent" />
                   <span className="font-semibold">{s.rating}</span>
-                  <span className="text-gray-400">({s.reviews})</span>
+                  <span className="text-gray-400">({s.reviewCount})</span>
                 </p>
               </Link>
             ))}

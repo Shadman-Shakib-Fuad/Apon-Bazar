@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { Plus, TrendingUp, TrendingDown } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
-import { Product, shops } from "@/data/mock";
+import type { ProductView } from "@/types";
 import { formatPrice, priceDiff } from "@/lib/utils";
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product }: { product: ProductView }) {
   const { addItem } = useCart();
-  const shop = shops.find((s) => s.id === product.shopId);
   const diff = priceDiff(product.price, product.yesterdayPrice);
+  const restricted = product.shopStatus === "restricted";
   const out = product.stock === 0;
 
   return (
@@ -21,17 +21,18 @@ export default function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <div className="mt-3">
-        <div className="flex items-center justify-between">
-          <p className="text-base font-bold text-gray-900">
-            {formatPrice(product.price)}
-            <span className="ml-1 text-xs font-normal text-gray-500">{product.unit}</span>
-          </p>
-        </div>
+        <p className="text-base font-bold text-gray-900">
+          {formatPrice(product.price)}
+          <span className="ml-1 text-xs font-normal text-gray-500">{product.unit}</span>
+        </p>
 
-        <Link href={`/products/${product.id}`} className="mt-0.5 block truncate text-sm font-medium text-gray-800 hover:text-primary">
+        <Link
+          href={`/products/${product.id}`}
+          className="mt-0.5 block truncate text-sm font-medium text-gray-800 hover:text-primary"
+        >
           {product.name}
         </Link>
-        <p className="truncate text-xs text-gray-500">{shop?.name}</p>
+        <p className="truncate text-xs text-gray-500">{product.shopName}</p>
 
         <div className="mt-2 flex items-center gap-1 text-xs">
           {diff > 0 && (
@@ -50,9 +51,9 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
 
-      {out ? (
+      {restricted || out ? (
         <span className="absolute right-3 top-3 rounded-full bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-white">
-          Out of stock
+          {restricted ? "Shop restricted" : "Out of stock"}
         </span>
       ) : (
         <button
@@ -60,7 +61,9 @@ export default function ProductCard({ product }: { product: Product }) {
             addItem({
               productId: product.id,
               shopId: product.shopId,
-              shopName: shop?.name ?? "",
+              shopName: product.shopName,
+              shopEmoji: product.shopEmoji,
+              deliveryCharge: product.deliveryCharge,
               name: product.name,
               price: product.price,
               emoji: product.emoji,

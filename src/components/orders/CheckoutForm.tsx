@@ -4,7 +4,6 @@ import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/CartProvider";
-import { shops } from "@/data/mock";
 import { addOrder, Order } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 
@@ -14,10 +13,10 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
   const [deliveryType, setDeliveryType] = useState<"home" | "pickup">("home");
   const [form, setForm] = useState({ name: "", phone: "", address: "" });
 
-  const shop = shops.find((s) => s.id === shopId);
   const shopItems = items.filter((i) => i.shopId === shopId);
+  const first = shopItems[0];
 
-  if (!shop || shopItems.length === 0) {
+  if (!first) {
     return (
       <div className="rounded-3xl bg-white p-10 text-center">
         <p className="text-gray-600">Ei shop er jonno cart e kichu nai.</p>
@@ -28,16 +27,8 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
     );
   }
 
-  if (shop.status === "restricted") {
-    return (
-      <div className="rounded-3xl bg-red-50 p-10 text-center text-red-700">
-        Ei shop ta restricted, order kora jabe na.
-      </div>
-    );
-  }
-
   const subtotal = shopItems.reduce((sum, i) => sum + i.price * i.qty, 0);
-  const deliveryCharge = deliveryType === "home" ? shop.deliveryCharge : 0;
+  const deliveryCharge = deliveryType === "home" ? first.deliveryCharge : 0;
   const total = subtotal + deliveryCharge;
 
   function handleSubmit(e: FormEvent) {
@@ -45,8 +36,8 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
     const now = new Date().toISOString();
     const order: Order = {
       id: `AB${Date.now().toString().slice(-6)}`,
-      shopId: shop!.id,
-      shopName: shop!.name,
+      shopId,
+      shopName: first.shopName,
       items: shopItems,
       subtotal,
       deliveryCharge,
@@ -60,7 +51,7 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
       createdAt: now,
     };
     addOrder(order);
-    clearShop(shop!.id);
+    clearShop(shopId);
     router.push("/orders");
   }
 
@@ -89,10 +80,29 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
           ))}
         </div>
 
-        <input required placeholder="Full name" className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        <input required placeholder="Phone number" className={input} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        <input
+          required
+          placeholder="Full name"
+          className={input}
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
+        <input
+          required
+          placeholder="Phone number"
+          className={input}
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+        />
         {deliveryType === "home" && (
-          <textarea required placeholder="Full address" rows={3} className={input} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+          <textarea
+            required
+            placeholder="Full address"
+            rows={3}
+            className={input}
+            value={form.address}
+            onChange={(e) => setForm({ ...form, address: e.target.value })}
+          />
         )}
 
         <p className="rounded-xl bg-accent-light p-3 text-xs text-gray-600">
@@ -101,19 +111,30 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
       </div>
 
       <div className="h-fit rounded-3xl border border-black/5 bg-white p-6">
-        <h2 className="text-lg font-bold text-gray-900">{shop.name}</h2>
+        <h2 className="text-lg font-bold text-gray-900">{first.shopName}</h2>
         <div className="mt-3 space-y-2 text-sm">
           {shopItems.map((i) => (
             <div key={i.productId} className="flex justify-between text-gray-600">
-              <span>{i.name} x {i.qty}</span>
+              <span>
+                {i.name} x {i.qty}
+              </span>
               <span>{formatPrice(i.price * i.qty)}</span>
             </div>
           ))}
         </div>
         <div className="mt-4 space-y-1 border-t border-gray-100 pt-4 text-sm">
-          <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
-          <div className="flex justify-between text-gray-600"><span>Delivery</span><span>{formatPrice(deliveryCharge)}</span></div>
-          <div className="flex justify-between text-base font-bold text-gray-900"><span>Total</span><span>{formatPrice(total)}</span></div>
+          <div className="flex justify-between text-gray-600">
+            <span>Subtotal</span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span>Delivery</span>
+            <span>{formatPrice(deliveryCharge)}</span>
+          </div>
+          <div className="flex justify-between text-base font-bold text-gray-900">
+            <span>Total</span>
+            <span>{formatPrice(total)}</span>
+          </div>
         </div>
         <button className="mt-5 w-full rounded-full bg-primary py-3 font-semibold text-white hover:bg-primary-dark">
           Place order

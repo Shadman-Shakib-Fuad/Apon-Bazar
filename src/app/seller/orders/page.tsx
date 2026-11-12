@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import { ClipboardList } from "lucide-react";
 import { Order, ORDER_STEPS, getOrders, saveOrders } from "@/lib/orders";
-import { sellerShopId } from "@/data/dashboard";
 import { formatPrice } from "@/lib/utils";
 
 export default function SellerOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    setOrders(getOrders().filter((o) => o.shopId === sellerShopId));
+    setOrders(getOrders().filter((o) => o.shopName === "Rahim Vegetable Store"));
   }, []);
 
   function setStatus(id: string, idx: number) {
@@ -20,8 +19,9 @@ export default function SellerOrdersPage() {
       while (history.length <= idx) history.push(new Date().toISOString());
       return { ...o, statusIndex: idx, history };
     });
+
     saveOrders(all);
-    setOrders(all.filter((o) => o.shopId === sellerShopId));
+    setOrders(all.filter((o) => o.shopName === "Rahim Vegetable Store"));
   }
 
   return (
