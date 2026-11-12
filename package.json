@@ -23,6 +23,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
@@ -30,7 +31,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
-    "tailwindcss": "4.3.3",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
 }
