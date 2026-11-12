@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Star, MapPin } from "lucide-react";
 import ProductCard from "@/components/shop/ProductCard";
@@ -19,15 +20,29 @@ export default async function Home({
   return (
     <div>
       {/* Hero */}
-      <section className="bg-primary">
-        <div className="mx-auto max-w-7xl px-4 py-14 text-center">
+      <section className="relative overflow-hidden bg-primary-dark">
+        <Image
+          src="/HeaderImage.png"
+          alt="Apon Bazar"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        {/* Text pora jaate bhalo hoy, tai halka dark layer */}
+        <div className="absolute inset-0 bg-black/40" />
+
+        <div className="relative mx-auto max-w-7xl px-4 py-20 text-center md:py-28">
           <h1 className="text-3xl font-extrabold text-white md:text-5xl">
             Apon manush, apon dokan
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-white/80 md:text-base">
+          <p className="mx-auto mt-3 max-w-xl text-sm text-white/90 md:text-base">
             Tomar paray local dokan theke taja product, sohoje ghore boshe.
           </p>
-          <form action="/" className="mx-auto mt-6 flex max-w-xl overflow-hidden rounded-full bg-white shadow-lg">
+          <form
+            action="/"
+            className="mx-auto mt-6 flex max-w-xl overflow-hidden rounded-full bg-white shadow-lg"
+          >
             <input
               name="q"
               defaultValue={q}
@@ -51,7 +66,7 @@ export default async function Home({
           </div>
           <div className="rounded-2xl bg-primary-light p-6">
             <p className="text-xs font-semibold uppercase text-primary">Price Watch</p>
-            <h3 className="mt-1 text-xl font-bold text-gray-900">Ager dinér dam er sathe tulona</h3>
+            <h3 className="mt-1 text-xl font-bold text-gray-900">Ager diner dam er sathe tulona</h3>
             <p className="mt-1 text-sm text-gray-600">Dam barlo na komlo, ek nojore.</p>
           </div>
           <div className="rounded-2xl bg-blue-50 p-6">
@@ -78,7 +93,9 @@ export default async function Home({
                 key={c.name}
                 href={`/?category=${c.name}`}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
-                  category === c.name ? "bg-primary-light text-primary-dark" : "text-gray-700 hover:bg-gray-50"
+                  category === c.name
+                    ? "bg-primary-light text-primary-dark"
+                    : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 <span className="text-lg">{c.emoji}</span> {c.name}
@@ -89,14 +106,21 @@ export default async function Home({
           <section>
             {/* Category chips (mobile) */}
             <div className="mb-4 flex gap-2 overflow-x-auto pb-2 lg:hidden">
-              <Link href="/" className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${!category ? "bg-primary text-white" : "bg-white text-gray-700"}`}>
+              <Link
+                href="/"
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${
+                  !category ? "bg-primary text-white" : "bg-white text-gray-700"
+                }`}
+              >
                 All
               </Link>
               {categories.map((c) => (
                 <Link
                   key={c.name}
                   href={`/?category=${c.name}`}
-                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${category === c.name ? "bg-primary text-white" : "bg-white text-gray-700"}`}
+                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${
+                    category === c.name ? "bg-primary text-white" : "bg-white text-gray-700"
+                  }`}
                 >
                   {c.emoji} {c.name}
                 </Link>
@@ -106,7 +130,11 @@ export default async function Home({
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">
                 {category ?? "All Products"}
-                {q && <span className="ml-2 text-sm font-normal text-gray-500">for "{q}"</span>}
+                {q && (
+                  <span className="ml-2 text-sm font-normal text-gray-500">
+                    for &quot;{q}&quot;
+                  </span>
+                )}
               </h2>
               <span className="text-sm text-gray-500">{filtered.length} items</span>
             </div>
