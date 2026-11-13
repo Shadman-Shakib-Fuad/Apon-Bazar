@@ -31,6 +31,7 @@ const OrderSchema = new Schema(
     paymentStatus: { type: String, enum: ["unpaid", "paid", "refunded"], default: "unpaid" },
     paymentMethod: { type: String, default: "Cash on Delivery" },
     transactionId: { type: String, default: "" },
+    stripeSessionId: { type: String, default: "" },
   },
   { timestamps: true }
 );

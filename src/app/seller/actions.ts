@@ -127,7 +127,13 @@ export async function updateOrderStatus(orderId: string, statusIndex: number): P
 
   order.statusIndex = statusIndex;
   order.statusHistory = history;
-  if (statusIndex === 4 && order.paymentStatus === "unpaid") order.paymentStatus = "paid";
+  if (
+    statusIndex === 4 &&
+    order.paymentStatus === "unpaid" &&
+    order.paymentMethod === "Cash on Delivery"
+  ) {
+    order.paymentStatus = "paid";
+  }
   await order.save();
 
   revalidatePath("/", "layout");

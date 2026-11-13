@@ -19,6 +19,7 @@ const orderSchema = z.object({
     .array(z.object({ productId: z.string(), qty: z.number().int().min(1).max(50) }))
     .min(1),
   deliveryType: z.enum(["home", "pickup"]),
+  paymentMethod: z.enum(["stripe", "cod"]),
   customerName: z.string().trim().min(2).max(80),
   phone: z.string().trim().min(6).max(20),
   address: z.string().trim().max(250),
@@ -94,6 +95,7 @@ export async function placeOrder(
     statusIndex: 0,
     statusHistory: [new Date()],
     paymentStatus: "unpaid",
+    paymentMethod: d.paymentMethod === "stripe" ? "Stripe (Card)" : "Cash on Delivery",
   });
 
   await Product.bulkWrite(
