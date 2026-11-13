@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ClipboardList, RefreshCw } from "lucide-react";
+import { ClipboardList, RefreshCw, Download } from "lucide-react";
 import OrderTimeline from "@/components/orders/OrderTimeline";
 import { getOrdersByIds } from "@/app/actions";
 import { ORDER_STEPS, getMyOrderIds } from "@/lib/orders";
@@ -83,12 +83,20 @@ export default function OrdersPage() {
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
                 <p className="font-bold text-gray-900">Total: {formatPrice(o.total)}</p>
-                <button
-                  onClick={() => setTracking(o.id)}
-                  className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
-                >
-                  Track order
-                </button>
+                <div className="flex gap-2">
+                  <a
+                    href={`/api/receipt/${o.id}`}
+                    className="flex items-center gap-1.5 rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary-light"
+                  >
+                    <Download size={15} /> Receipt
+                  </a>
+                  <button
+                    onClick={() => setTracking(o.id)}
+                    className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+                  >
+                    Track order
+                  </button>
+                </div>
               </div>
             </div>
           ))}

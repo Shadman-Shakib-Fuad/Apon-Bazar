@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, Download } from "lucide-react";
 import { updateOrderStatus } from "@/app/seller/actions";
 import { ORDER_STEPS } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
@@ -52,18 +52,26 @@ export default function SellerOrdersList({ orders }: { orders: OrderView[] }) {
             ))}
           </div>
 
-          <div className="mt-4 flex items-center gap-3 border-t border-gray-100 pt-4">
-            <label className="text-sm font-medium text-gray-700">Status:</label>
-            <select
-              value={o.statusIndex}
-              disabled={pending}
-              onChange={(e) => change(o.id, Number(e.target.value))}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary"
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700">Status:</label>
+              <select
+                value={o.statusIndex}
+                disabled={pending}
+                onChange={(e) => change(o.id, Number(e.target.value))}
+                className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary"
+              >
+                {ORDER_STEPS.map((s, i) => (
+                  <option key={s} value={i} disabled={i < o.statusIndex}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <a
+              href={`/api/receipt/${o.id}`}
+              className="flex items-center gap-1.5 rounded-full border border-primary px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-light"
             >
-              {ORDER_STEPS.map((s, i) => (
-                <option key={s} value={i} disabled={i < o.statusIndex}>{s}</option>
-              ))}
-            </select>
+              <Download size={14} /> Receipt PDF
+            </a>
           </div>
         </div>
       ))}

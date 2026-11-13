@@ -51,6 +51,8 @@ export function toOrderView(o: OrderDoc): OrderView {
     statusIndex: o.statusIndex,
     history: (o.statusHistory ?? []).map((d) => new Date(d).toISOString()),
     paymentStatus: o.paymentStatus as OrderView["paymentStatus"],
+    paymentMethod: o.paymentMethod ?? "Cash on Delivery",
+    transactionId: o.transactionId ?? "",
     createdAt: o.createdAt.toISOString(),
   };
 }
@@ -285,4 +287,11 @@ export async function getAdminLogs(): Promise<AdminLogView[]> {
     message: r.message,
     time: r.createdAt.toISOString(),
   }));
+}
+
+export async function getOrderById(id: string): Promise<OrderView | null> {
+  if (!mongoose.isValidObjectId(id)) return null;
+  await connectDB();
+  const o = await Order.findById(id).lean<OrderDoc>();
+  return o ? toOrderView(o) : null;
 }
