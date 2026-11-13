@@ -16,6 +16,7 @@ const OrderItemSchema = new Schema(
 const OrderSchema = new Schema(
   {
     shopId: { type: Schema.Types.ObjectId, ref: "Shop", required: true, index: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", index: true },
     shopName: { type: String, required: true },
     items: { type: [OrderItemSchema], required: true },
     subtotal: { type: Number, required: true },

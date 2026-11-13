@@ -2,6 +2,7 @@ import mongoose, { Schema, InferSchemaType, Model, Types } from "mongoose";
 
 const ShopSchema = new Schema(
   {
+    ownerId: { type: Schema.Types.ObjectId, ref: "User", index: true },
     name: { type: String, required: true, trim: true },
     ownerName: { type: String, required: true },
     area: { type: String, required: true },

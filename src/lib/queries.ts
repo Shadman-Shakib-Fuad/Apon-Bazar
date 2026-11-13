@@ -1,3 +1,4 @@
+import { getCurrentUser } from "@/lib/session";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import Shop, { ShopDoc } from "@/models/Shop";
@@ -31,6 +32,7 @@ export function toOrderView(o: OrderDoc): OrderView {
   return {
     id,
     code: orderCode(id),
+    userId: o.userId ? o.userId.toString() : "",
     shopId: o.shopId.toString(),
     shopName: o.shopName,
     items: o.items.map((i) => ({
@@ -60,7 +62,9 @@ export function toOrderView(o: OrderDoc): OrderView {
 // ---------------- Seller ----------------
 export async function getSellerShop(): Promise<ShopView | null> {
   await connectDB();
-  const s = await Shop.findOne({ name: SELLER_SHOP_NAME }).lean<ShopDoc>();
+  const user = await getCurrentUser();
+  if (!user || user.role !== "seller") return null;
+  const s = await Shop.findOne({ ownerId: user.id }).lean<ShopDoc>();
   if (!s) return null;
   return {
     id: s._id.toString(),
@@ -294,4 +298,11 @@ export async function getOrderById(id: string): Promise<OrderView | null> {
   await connectDB();
   const o = await Order.findById(id).lean<OrderDoc>();
   return o ? toOrderView(o) : null;
+}
+
+export async function getUserOrders(userId: string): Promise<OrderView[]> {
+  if (!mongoose.isValidObjectId(userId)) return [];
+  await connectDB();
+  const orders = await Order.find({ userId }).sort({ createdAt: -1 }).lean<OrderDoc[]>();
+  return orders.map(toOrderView);
 }

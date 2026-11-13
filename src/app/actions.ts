@@ -4,13 +4,12 @@ import mongoose from "mongoose";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { connectDB } from "@/lib/mongodb";
+import { getCurrentUser } from "@/lib/session";
 import Shop, { ShopDoc } from "@/models/Shop";
 import Product, { ProductDoc } from "@/models/Product";
 import Order from "@/models/Order";
 import Review from "@/models/Review";
 import Report from "@/models/Report";
-import { OrderDoc, toOrderView } from "@/lib/queries";
-import type { OrderView } from "@/types";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -28,6 +27,9 @@ const orderSchema = z.object({
 export async function placeOrder(
   input: unknown
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Order korte age login koro." };
+
   const parsed = orderSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Form er tottho thik na, abar check koro." };
   const d = parsed.data;
@@ -56,7 +58,6 @@ export async function placeOrder(
   }).lean<ProductDoc[]>();
   const pmap = new Map(products.map((p) => [p._id.toString(), p]));
 
-  // Dam ar stock server theke nichhi, browser er upor bhorosha nai
   const lines = [];
   for (const it of d.items) {
     const p = pmap.get(it.productId);
@@ -80,6 +81,7 @@ export async function placeOrder(
 
   const order = await Order.create({
     shopId: shop._id,
+    userId: user.id,
     shopName: shop.name,
     items: lines,
     subtotal,
@@ -107,36 +109,35 @@ export async function placeOrder(
   return { ok: true, id: order._id.toString() };
 }
 
-export async function getOrdersByIds(ids: string[]): Promise<OrderView[]> {
-  const valid = ids.filter((id) => mongoose.isValidObjectId(id)).slice(0, 50);
-  if (valid.length === 0) return [];
-  await connectDB();
-  const orders = await Order.find({ _id: { $in: valid } })
-    .sort({ createdAt: -1 })
-    .lean<OrderDoc[]>();
-  return orders.map(toOrderView);
-}
-
 const reviewSchema = z.object({
   shopId: z.string(),
-  reviewerName: z.string().trim().min(2, "Naam likho").max(60),
   rating: z.number().int().min(1).max(5),
   comment: z.string().trim().max(500),
 });
 
 export async function submitReview(input: unknown): Promise<Result> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Review dite age login koro." };
+
   const parsed = reviewSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Naam ar rating thik moto dao." };
+  if (!parsed.success) return { ok: false, error: "Rating thik moto dao." };
   const d = parsed.data;
   if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop paoa jayni." };
 
   await connectDB();
   const shop = await Shop.findById(d.shopId).lean<ShopDoc>();
   if (!shop) return { ok: false, error: "Shop paoa jayni." };
+  if (shop.ownerId?.toString() === user.id) {
+    return { ok: false, error: "Nijer shop e nijer review deoa jabe na." };
+  }
 
-  await Review.create(d);
+  await Review.create({
+    shopId: shop._id,
+    reviewerName: user.name ?? "Customer",
+    rating: d.rating,
+    comment: d.comment,
+  });
 
-  // Ager rating er sathe notun rating milie average
   const count = shop.reviewCount;
   const rating = Math.round(((shop.rating * count + d.rating) / (count + 1)) * 10) / 10;
   await Shop.updateOne({ _id: shop._id }, { rating, reviewCount: count + 1 });
@@ -147,14 +148,16 @@ export async function submitReview(input: unknown): Promise<Result> {
 
 const reportSchema = z.object({
   shopId: z.string(),
-  reporterName: z.string().trim().min(2, "Naam likho").max(60),
   reason: z.enum(["Fake product", "Bad behavior", "Wrong price", "Other"]),
   description: z.string().trim().max(500),
 });
 
 export async function submitReport(input: unknown): Promise<Result> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Report korte age login koro." };
+
   const parsed = reportSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Naam ar reason thik moto dao." };
+  if (!parsed.success) return { ok: false, error: "Reason thik moto dao." };
   const d = parsed.data;
   if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop paoa jayni." };
 
@@ -162,7 +165,13 @@ export async function submitReport(input: unknown): Promise<Result> {
   const shop = await Shop.findById(d.shopId).lean<ShopDoc>();
   if (!shop) return { ok: false, error: "Shop paoa jayni." };
 
-  await Report.create({ ...d, shopName: shop.name });
+  await Report.create({
+    shopId: shop._id,
+    shopName: shop.name,
+    reporterName: user.name ?? "Customer",
+    reason: d.reason,
+    description: d.description,
+  });
 
   revalidatePath("/admin", "layout");
   return { ok: true };

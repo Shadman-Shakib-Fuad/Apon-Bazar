@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/CartProvider";
 import { placeOrder } from "@/app/actions";
-import { addMyOrderId } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 
 export default function CheckoutForm({ shopId }: { shopId: string }) {
@@ -48,7 +47,6 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
       });
 
       if (res.ok) {
-        addMyOrderId(res.id);
         clearShop(shopId);
         router.push("/orders");
       } else {

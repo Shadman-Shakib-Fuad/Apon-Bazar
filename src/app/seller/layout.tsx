@@ -1,6 +1,13 @@
+import { redirect } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
+import { requireRole } from "@/lib/session";
+import { getSellerShop } from "@/lib/queries";
 
-export default function SellerLayout({ children }: { children: React.ReactNode }) {
+export default async function SellerLayout({ children }: { children: React.ReactNode }) {
+  await requireRole(["seller"]);
+  const shop = await getSellerShop();
+  if (!shop) redirect("/open-shop");
+
   return (
     <div className="min-h-screen bg-cream">
       <Sidebar

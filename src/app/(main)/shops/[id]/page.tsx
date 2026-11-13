@@ -6,6 +6,7 @@ import ReportButton from "@/components/shop/ReportButton";
 import { getShop, getProducts } from "@/lib/data";
 import { getReviews } from "@/lib/queries";
 import { formatPrice } from "@/lib/utils";
+import { getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,7 @@ export default async function ShopPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const user = await getCurrentUser();
   const shop = await getShop(id);
   if (!shop) notFound();
 
@@ -43,7 +45,7 @@ export default async function ShopPage({
               <Truck size={15} /> Delivery {formatPrice(shop.deliveryCharge)}
             </span>
           </div>
-          <ReportButton shopId={shop.id} />
+          <ReportButton shopId={shop.id} loggedIn={!!user} />
         </div>
       </div>
 
@@ -62,7 +64,7 @@ export default async function ShopPage({
         ))}
       </div>
 
-      <ReviewSection shopId={shop.id} reviews={reviews} />
+      <ReviewSection shopId={shop.id} reviews={reviews} loggedIn={!!user} />
     </div>
   );
 }

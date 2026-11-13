@@ -1,14 +1,20 @@
 "use client";
 
 import { useState, useTransition, FormEvent } from "react";
+import Link from "next/link";
 import { Flag } from "lucide-react";
 import { submitReport } from "@/app/actions";
 
 const reasons = ["Fake product", "Bad behavior", "Wrong price", "Other"] as const;
 
-export default function ReportButton({ shopId }: { shopId: string }) {
+export default function ReportButton({
+  shopId,
+  loggedIn,
+}: {
+  shopId: string;
+  loggedIn: boolean;
+}) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
   const [reason, setReason] = useState<(typeof reasons)[number]>("Fake product");
   const [description, setDescription] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -17,10 +23,9 @@ export default function ReportButton({ shopId }: { shopId: string }) {
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      const res = await submitReport({ shopId, reporterName: name, reason, description });
+      const res = await submitReport({ shopId, reason, description });
       if (res.ok) {
         setMsg({ ok: true, text: "Report pathano hoyeche. Admin dekhbe." });
-        setName("");
         setDescription("");
         setOpen(false);
       } else {
@@ -31,6 +36,17 @@ export default function ReportButton({ shopId }: { shopId: string }) {
 
   const input =
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary";
+
+  if (!loggedIn) {
+    return (
+      <p className="mt-4 text-xs text-gray-500">
+        Report korte{" "}
+        <Link href="/login" className="font-semibold text-primary hover:underline">
+          login koro
+        </Link>
+      </p>
+    );
+  }
 
   return (
     <div className="mt-4">
@@ -43,19 +59,12 @@ export default function ReportButton({ shopId }: { shopId: string }) {
 
       {open && (
         <form onSubmit={onSubmit} className="mt-3 space-y-3 rounded-2xl border border-red-100 bg-white p-4">
-          <input required placeholder="Tomar naam" className={input} value={name} onChange={(e) => setName(e.target.value)} />
           <select className={input} value={reason} onChange={(e) => setReason(e.target.value as (typeof reasons)[number])}>
             {reasons.map((r) => (
               <option key={r}>{r}</option>
             ))}
           </select>
-          <textarea
-            placeholder="Ki hoyechhe likho"
-            rows={3}
-            className={input}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+          <textarea placeholder="Ki hoyechhe likho" rows={3} className={input} value={description} onChange={(e) => setDescription(e.target.value)} />
           <button
             disabled={pending}
             className="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"

@@ -38,6 +38,7 @@ export type OrderItemView = {
 export type OrderView = {
   id: string;
   code: string;
+  userId: string;
   shopId: string;
   shopName: string;
   items: OrderItemView[];
