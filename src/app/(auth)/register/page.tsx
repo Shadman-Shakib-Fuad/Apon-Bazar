@@ -22,8 +22,8 @@ export default function RegisterPage() {
           <span className="text-xl font-bold text-primary-dark">Apon Bazar</span>
         </Link>
 
-        <h1 className="text-center text-2xl font-extrabold text-gray-900">Account banao</h1>
-        <p className="mt-1 text-center text-sm text-gray-500">Apon Bazar e join koro</p>
+        <h1 className="text-center text-2xl font-extrabold text-gray-900">Create an account</h1>
+        <p className="mt-1 text-center text-sm text-gray-500">Join Apon Bazar</p>
 
         <form action={googleLoginAction} className="mt-6">
           <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -62,21 +62,21 @@ export default function RegisterPage() {
 
           <input name="name" required placeholder="Full name" className={input} />
           <input name="email" type="email" required placeholder="Email" className={input} />
-          <input name="password" type="password" required minLength={6} placeholder="Password (min 6 character)" className={input} />
+          <input name="password" type="password" required minLength={6} placeholder="Password (min 6 characters)" className={input} />
 
           {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
           <button
             disabled={pending}
             className="w-full rounded-xl bg-primary py-3 font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
           >
-            {pending ? "Account hocche..." : "Register"}
+            {pending ? "Creating account..." : "Register"}
           </button>
         </form>
 
         <p className="mt-5 text-center text-sm text-gray-500">
-          Already account ache?{" "}
+          Already have an account?{" "}
           <Link href="/login" className="font-semibold text-primary hover:underline">
-            Login koro
+            Log in
           </Link>
         </p>
       </div>

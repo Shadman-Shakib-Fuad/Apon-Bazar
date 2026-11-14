@@ -5,14 +5,14 @@ export const dynamic = "force-dynamic";
 
 export default async function SellerOrdersPage() {
   const shop = await getSellerShop();
-  if (!shop) return <p className="text-gray-600">Shop paoa jayni. Age seed script chalao.</p>;
+  if (!shop) return <p className="text-gray-600">Shop not found.</p>;
 
   const orders = await getShopOrders(shop.id);
 
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-gray-900">Orders</h1>
-      <p className="text-sm text-gray-500">Shudhu tomar shop ({shop.name}) er order dekhabe</p>
+      <p className="text-sm text-gray-500">Orders for {shop.name}</p>
       <SellerOrdersList orders={orders} />
     </div>
   );

@@ -72,7 +72,7 @@ export default function ReceiptDocument({ order }: { order: OrderView }) {
         <View style={styles.header}>
           <View>
             <Text style={styles.brand}>Apon Bazar</Text>
-            <Text style={styles.tagline}>Apon manush, apon dokan</Text>
+            <Text style={styles.tagline}>Fresh from your local shops</Text>
           </View>
           <View>
             <Text style={styles.receiptWord}>RECEIPT</Text>

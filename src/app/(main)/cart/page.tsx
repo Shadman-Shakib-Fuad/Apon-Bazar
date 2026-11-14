@@ -13,13 +13,13 @@ export default function CartPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
         <ShoppingBag size={56} className="mx-auto text-gray-300" />
-        <h1 className="mt-4 text-xl font-bold text-gray-900">Tomar cart faka</h1>
-        <p className="mt-1 text-sm text-gray-500">Kichu product add koro</p>
+        <h1 className="mt-4 text-xl font-bold text-gray-900">Your cart is empty</h1>
+        <p className="mt-1 text-sm text-gray-500">Add some products to get started</p>
         <Link
           href="/"
           className="mt-6 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-dark"
         >
-          Shopping shuru koro
+          Start shopping
         </Link>
       </div>
     );
@@ -29,7 +29,7 @@ export default function CartPage() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-2xl font-extrabold text-gray-900">My Cart</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Proti shop er order alada, tai proti shop er jonno alada checkout korte hobe.
+        Each shop has its own order, so you check out separately for each shop.
       </p>
 
       <div className="mt-6 space-y-6">

@@ -12,15 +12,15 @@ export async function createCheckoutSession(
   orderId: string
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Login koro." };
-  if (!mongoose.isValidObjectId(orderId)) return { ok: false, error: "Order paoa jayni." };
+  if (!user) return { ok: false, error: "Please log in." };
+  if (!mongoose.isValidObjectId(orderId)) return { ok: false, error: "Order not found." };
 
   await connectDB();
   const order = await Order.findById(orderId);
   if (!order || order.userId?.toString() !== user.id) {
-    return { ok: false, error: "Order paoa jayni." };
+    return { ok: false, error: "Order not found." };
   }
-  if (order.paymentStatus === "paid") return { ok: false, error: "Ei order er payment already hoyeche." };
+  if (order.paymentStatus === "paid") return { ok: false, error: "This order has already been paid." };
 
   const currency = (process.env.STRIPE_CURRENCY ?? "bdt").toLowerCase();
   const rate = Number(process.env.STRIPE_TAKA_PER_UNIT ?? "1") || 1;
@@ -64,10 +64,10 @@ export async function createCheckoutSession(
       { stripeSessionId: session.id, paymentMethod: "Stripe (Card)" }
     );
 
-    if (!session.url) return { ok: false, error: "Stripe payment page toiri hoyni." };
+    if (!session.url) return { ok: false, error: "Could not create the Stripe payment page." };
     return { ok: true, url: session.url };
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Stripe e somossa hoyeche.";
+    const msg = e instanceof Error ? e.message : "Something went wrong with Stripe.";
     return { ok: false, error: msg };
   }
 }

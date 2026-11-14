@@ -22,7 +22,7 @@ export default function SellerProductManager({ products }: { products: SellerPro
     startTransition(async () => {
       const res = await fn();
       if (res.ok) after?.();
-      else setError(res.error ?? "Kichu ekta bhul hoyeche");
+      else setError(res.error ?? "Something went wrong");
     });
   }
 
@@ -58,7 +58,7 @@ export default function SellerProductManager({ products }: { products: SellerPro
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">My Products</h1>
-          <p className="text-sm text-gray-500">Cost price shudhu tumi ar admin dekhte pabe</p>
+          <p className="text-sm text-gray-500">Only you and the admin can see the cost price</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -158,7 +158,7 @@ export default function SellerProductManager({ products }: { products: SellerPro
                           <button onClick={() => startEdit(p)} className="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"><Pencil size={16} /></button>
                           <button
                             disabled={pending}
-                            onClick={() => confirm(`"${p.name}" delete korbe?`) && run(() => deleteProduct(p.id))}
+                            onClick={() => confirm(`Delete "${p.name}"?`) && run(() => deleteProduct(p.id))}
                             className="rounded-full bg-red-50 p-2 text-red-500 hover:bg-red-100"
                           >
                             <Trash2 size={16} />

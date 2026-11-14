@@ -25,7 +25,7 @@ export default function ReviewSection({
     startTransition(async () => {
       const res = await submitReview({ shopId, rating, comment });
       if (res.ok) {
-        setMsg({ ok: true, text: "Review dewar jonno dhonnobad!" });
+        setMsg({ ok: true, text: "Thanks for your review!" });
         setComment("");
         setRating(5);
       } else {
@@ -43,7 +43,7 @@ export default function ReviewSection({
 
       {loggedIn ? (
         <form onSubmit={onSubmit} className="mt-4 space-y-3 rounded-2xl bg-cream p-4">
-          <p className="text-sm font-semibold text-gray-700">Tomar review dao</p>
+          <p className="text-sm font-semibold text-gray-700">Write your review</p>
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
               <button type="button" key={n} onClick={() => setRating(n)} aria-label={`${n} star`}>
@@ -52,7 +52,7 @@ export default function ReviewSection({
             ))}
           </div>
           <textarea
-            placeholder="Tomar obhijnota likho (optional)"
+            placeholder="Share your experience (optional)"
             rows={2}
             className={input}
             value={comment}
@@ -62,22 +62,22 @@ export default function ReviewSection({
             disabled={pending}
             className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
           >
-            {pending ? "Pathachhi..." : "Submit review"}
+            {pending ? "Submitting..." : "Submit review"}
           </button>
           {msg && <p className={`text-sm ${msg.ok ? "text-green-700" : "text-red-600"}`}>{msg.text}</p>}
         </form>
       ) : (
         <p className="mt-4 rounded-2xl bg-cream p-4 text-sm text-gray-600">
-          Review dite{" "}
+          To write a review,{" "}
           <Link href="/login" className="font-semibold text-primary hover:underline">
-            login koro
+            log in
           </Link>
           .
         </p>
       )}
 
       <div className="mt-5 divide-y divide-gray-100">
-        {reviews.length === 0 && <p className="text-sm text-gray-400">Ekhono kono review nai</p>}
+        {reviews.length === 0 && <p className="text-sm text-gray-400">No reviews yet</p>}
         {reviews.map((r) => (
           <div key={r.id} className="py-3">
             <div className="flex items-center justify-between">

@@ -23,9 +23,9 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
   if (!first) {
     return (
       <div className="rounded-3xl bg-white p-10 text-center">
-        <p className="text-gray-600">Ei shop er jonno cart e kichu nai.</p>
+        <p className="text-gray-600">Your cart has no items from this shop.</p>
         <Link href="/cart" className="mt-4 inline-block font-semibold text-primary hover:underline">
-          Cart e jao
+          Go to cart
         </Link>
       </div>
     );
@@ -110,7 +110,7 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
         </div>
         {paymentMethod === "stripe" && (
           <p className="rounded-xl bg-accent-light p-3 text-xs text-gray-600">
-            Order korle Stripe er secure payment page e jabe. Test card: <b>4242 4242 4242 4242</b>, je kono future date, je kono CVC.
+            You will be redirected to the secure Stripe payment page. Test card: <b>4242 4242 4242 4242</b>, any future expiry date, any CVC.
           </p>
         )}
 
@@ -136,7 +136,7 @@ export default function CheckoutForm({ shopId }: { shopId: string }) {
           disabled={pending}
           className="mt-5 w-full rounded-full bg-primary py-3 font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
         >
-          {pending ? "Wait koro..." : paymentMethod === "stripe" ? "Place order & pay" : "Place order"}
+          {pending ? "Please wait..." : paymentMethod === "stripe" ? "Place order & pay" : "Place order"}
         </button>
       </div>
     </form>

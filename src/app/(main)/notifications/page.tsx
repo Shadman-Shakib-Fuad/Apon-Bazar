@@ -19,7 +19,7 @@ export default async function NotificationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">Notifications</h1>
-          <p className="text-sm text-gray-500">{unread} ta notun</p>
+          <p className="text-sm text-gray-500">{unread} new</p>
         </div>
         {unread > 0 && (
           <form action={markAllRead}>
@@ -33,7 +33,7 @@ export default async function NotificationsPage() {
       {items.length === 0 ? (
         <div className="mt-10 rounded-3xl bg-white p-12 text-center">
           <Bell size={48} className="mx-auto text-gray-300" />
-          <p className="mt-3 text-gray-600">Kono notification nai</p>
+          <p className="mt-3 text-gray-600">No notifications yet</p>
         </div>
       ) : (
         <div className="mt-6 space-y-3">

@@ -12,7 +12,7 @@ export async function updateProfile(
   formData: FormData
 ): Promise<string | null> {
   const user = await getCurrentUser();
-  if (!user) return "Login koro.";
+  if (!user) return "Please log in.";
 
   const parsed = z
     .object({
@@ -25,12 +25,12 @@ export async function updateProfile(
       phone: formData.get("phone") ?? "",
       address: formData.get("address") ?? "",
     });
-  if (!parsed.success) return "Naam thik moto dao.";
+  if (!parsed.success) return "Please enter a valid name.";
 
   await connectDB();
   await User.updateOne({ _id: user.id }, parsed.data);
   revalidatePath("/", "layout");
-  return "Profile update hoyeche ✅";
+  return "Profile updated ✅";
 }
 
 // Customer, seller hote pare. Admin role eibhabe paoa jay na

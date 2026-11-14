@@ -51,7 +51,7 @@ export default async function ShopPage({
 
       {shop.status === "restricted" && (
         <div className="mt-4 flex items-center gap-2 rounded-2xl bg-red-50 p-4 text-sm text-red-700">
-          <AlertTriangle size={18} /> Ei shop ta ekhon restricted, notun order newa jabe na.
+          <AlertTriangle size={18} /> This shop is currently restricted and cannot accept new orders.
         </div>
       )}
 

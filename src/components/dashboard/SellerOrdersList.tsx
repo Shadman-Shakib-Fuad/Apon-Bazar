@@ -23,7 +23,7 @@ export default function SellerOrdersList({ orders }: { orders: OrderView[] }) {
     return (
       <div className="mt-8 rounded-3xl bg-white p-12 text-center">
         <ClipboardList size={48} className="mx-auto text-gray-300" />
-        <p className="mt-3 text-gray-600">Ekhono kono order nai</p>
+        <p className="mt-3 text-gray-600">You have no orders yet</p>
       </div>
     );
   }

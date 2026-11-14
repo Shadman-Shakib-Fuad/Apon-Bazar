@@ -17,12 +17,12 @@ async function getAdmin() {
 
 export async function toggleShopStatus(shopId: string): Promise<Result> {
   const admin = await getAdmin();
-  if (!admin) return { ok: false, error: "Shudhu admin eta korte pare." };
-  if (!mongoose.isValidObjectId(shopId)) return { ok: false, error: "Shop paoa jayni." };
+  if (!admin) return { ok: false, error: "Only admins can do this." };
+  if (!mongoose.isValidObjectId(shopId)) return { ok: false, error: "Shop not found." };
   await connectDB();
 
   const shop = await Shop.findById(shopId).lean<ShopDoc>();
-  if (!shop) return { ok: false, error: "Shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Shop not found." };
 
   const next = shop.status === "active" ? "restricted" : "active";
   await Shop.updateOne({ _id: shopId }, { status: next });
@@ -39,12 +39,12 @@ export async function handleReport(
   action: "restrict" | "dismiss"
 ): Promise<Result> {
   const admin = await getAdmin();
-  if (!admin) return { ok: false, error: "Shudhu admin eta korte pare." };
-  if (!mongoose.isValidObjectId(reportId)) return { ok: false, error: "Report paoa jayni." };
+  if (!admin) return { ok: false, error: "Only admins can do this." };
+  if (!mongoose.isValidObjectId(reportId)) return { ok: false, error: "Report not found." };
   await connectDB();
 
   const report = await Report.findById(reportId);
-  if (!report) return { ok: false, error: "Report paoa jayni." };
+  if (!report) return { ok: false, error: "Report not found." };
 
   if (action === "restrict") {
     await Shop.updateOne({ _id: report.shopId }, { status: "restricted" });

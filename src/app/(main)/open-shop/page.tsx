@@ -12,9 +12,9 @@ export default async function OpenShopPage() {
 
   return (
     <div className="mx-auto max-w-lg px-4 py-10">
-      <h1 className="text-2xl font-extrabold text-gray-900">Tomar shop kholo</h1>
+      <h1 className="text-2xl font-extrabold text-gray-900">Open your shop</h1>
       <p className="mb-6 mt-1 text-sm text-gray-500">
-        Shop er basic tottho dao, tarpor product add korte parba.
+        Enter your shop basic details, then you can start adding products.
       </p>
       <OpenShopForm />
     </div>

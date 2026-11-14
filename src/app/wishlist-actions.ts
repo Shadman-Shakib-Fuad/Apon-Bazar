@@ -11,8 +11,8 @@ export async function toggleWishlist(
   productId: string
 ): Promise<{ ok: true; wished: boolean } | { ok: false; error: string }> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Wishlist e rakhte age login koro." };
-  if (!mongoose.isValidObjectId(productId)) return { ok: false, error: "Product paoa jayni." };
+  if (!user) return { ok: false, error: "Please log in to use your wishlist." };
+  if (!mongoose.isValidObjectId(productId)) return { ok: false, error: "Product not found." };
 
   await connectDB();
 
@@ -24,7 +24,7 @@ export async function toggleWishlist(
   }
 
   if (!(await Product.exists({ _id: productId }))) {
-    return { ok: false, error: "Product paoa jayni." };
+    return { ok: false, error: "Product not found." };
   }
   await Wishlist.create({ userId: user.id, productId });
   revalidatePath("/wishlist");

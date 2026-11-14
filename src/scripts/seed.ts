@@ -42,11 +42,11 @@ const reportsData = [
 ];
 
 const reviewsData = [
-  { shop: 0, reviewerName: "Nusrat Jahan", rating: 5, comment: "Sobshomoy taja sabji pai." },
-  { shop: 0, reviewerName: "Karim Uddin", rating: 4, comment: "Dam thik ache, delivery fast." },
-  { shop: 3, reviewerName: "Mitu Akter", rating: 5, comment: "Doodh ekdom taja." },
-  { shop: 4, reviewerName: "Sabbir Hossain", rating: 2, comment: "Quality bhalo na." },
-  { shop: 4, reviewerName: "Rashed Khan", rating: 1, comment: "Expired product dise." },
+  { shop: 0, reviewerName: "Nusrat Jahan", rating: 5, comment: "Always fresh vegetables." },
+  { shop: 0, reviewerName: "Karim Uddin", rating: 4, comment: "Fair prices and fast delivery." },
+  { shop: 3, reviewerName: "Mitu Akter", rating: 5, comment: "The milk is perfectly fresh." },
+  { shop: 4, reviewerName: "Sabbir Hossain", rating: 2, comment: "The quality is not good." },
+  { shop: 4, reviewerName: "Rashed Khan", rating: 1, comment: "They delivered an expired product." },
 ];
 
 async function main() {

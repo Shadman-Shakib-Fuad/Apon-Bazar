@@ -17,15 +17,15 @@ export default async function WishlistPage() {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="text-2xl font-extrabold text-gray-900">My Wishlist</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Ei product gulor dam kome gele tomake notification pathabo.
+        We will notify you when the price of these products drops.
       </p>
 
       {products.length === 0 ? (
         <div className="mt-10 rounded-3xl bg-white p-12 text-center">
           <Heart size={48} className="mx-auto text-gray-300" />
-          <p className="mt-3 text-gray-600">Wishlist faka</p>
+          <p className="mt-3 text-gray-600">Your wishlist is empty</p>
           <Link href="/" className="mt-4 inline-block font-semibold text-primary hover:underline">
-            Product dekho
+            Browse products
           </Link>
         </div>
       ) : (

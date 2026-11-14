@@ -61,10 +61,10 @@ export default async function Home({
 
         <div className="relative mx-auto max-w-7xl px-4 py-20 text-center md:py-28">
           <h1 className="text-3xl font-extrabold text-white md:text-5xl">
-            Apon manush, apon dokan
+            Fresh from your local shops
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-sm text-white/90 md:text-base">
-            Tomar paray local dokan theke taja product, sohoje ghore boshe.
+            Fresh products from local shops in your neighborhood, delivered to your door.
           </p>
           <form
             action="/"
@@ -73,7 +73,7 @@ export default async function Home({
             <input
               name="q"
               defaultValue={q}
-              placeholder="Ki khujcho? tomato, fish, milk..."
+              placeholder="What are you looking for? tomato, fish, milk..."
               className="w-full px-5 py-3 text-sm outline-none"
             />
             <button className="bg-accent px-6 text-sm font-semibold text-white hover:opacity-90">
@@ -88,18 +88,18 @@ export default async function Home({
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl bg-accent-light p-6">
             <p className="text-xs font-semibold uppercase text-accent">Fresh Today</p>
-            <h3 className="mt-1 text-xl font-bold text-gray-900">Taja sabji, sotti dam</h3>
-            <p className="mt-1 text-sm text-gray-600">Prottidin price update dekho.</p>
+            <h3 className="mt-1 text-xl font-bold text-gray-900">Fresh vegetables, fair prices</h3>
+            <p className="mt-1 text-sm text-gray-600">Check updated prices every day.</p>
           </div>
           <div className="rounded-2xl bg-primary-light p-6">
             <p className="text-xs font-semibold uppercase text-primary">Price Watch</p>
-            <h3 className="mt-1 text-xl font-bold text-gray-900">Ager diner dam er sathe tulona</h3>
-            <p className="mt-1 text-sm text-gray-600">Dam barlo na komlo, ek nojore.</p>
+            <h3 className="mt-1 text-xl font-bold text-gray-900">Compare with the previous day price</h3>
+            <p className="mt-1 text-sm text-gray-600">See if prices went up or down at a glance.</p>
           </div>
           <div className="rounded-2xl bg-blue-50 p-6">
             <p className="text-xs font-semibold uppercase text-blue-600">Local Shops</p>
-            <h3 className="mt-1 text-xl font-bold text-gray-900">Nijer paray er dokan</h3>
-            <p className="mt-1 text-sm text-gray-600">Review dekhe bhalo dokan beche nao.</p>
+            <h3 className="mt-1 text-xl font-bold text-gray-900">Shops from your neighborhood</h3>
+            <p className="mt-1 text-sm text-gray-600">Pick great shops based on reviews.</p>
           </div>
         </div>
 
@@ -155,7 +155,7 @@ export default async function Home({
 
             {filtered.length === 0 ? (
               <div className="rounded-2xl bg-white p-10 text-center text-gray-500">
-                Kono product paoa jayni 😕 Filter kom kore abar try koro.
+                No products found 😕 Try fewer filters.
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">

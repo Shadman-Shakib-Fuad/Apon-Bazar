@@ -51,8 +51,8 @@ export default async function ProfilePage() {
 
       {user.role === "customer" && (
         <div className="mt-6 rounded-3xl bg-accent-light p-6">
-          <h2 className="font-bold text-gray-900">Nijer dokan online niye aso 🏪</h2>
-          <p className="mt-1 text-sm text-gray-600">Seller hoye shop khulle product bikri korte parba.</p>
+          <h2 className="font-bold text-gray-900">Bring your shop online 🏪</h2>
+          <p className="mt-1 text-sm text-gray-600">Become a seller and open a shop to start selling products.</p>
           <form action={becomeSeller}>
             <button className="mt-4 rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
               Become a seller

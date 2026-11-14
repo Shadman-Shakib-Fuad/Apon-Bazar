@@ -13,10 +13,10 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-gray-900">Admin Dashboard</h1>
-      <p className="text-sm text-gray-500">Puro platform er overview</p>
+      <p className="text-sm text-gray-500">Platform overview</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Total Users" value={o.users.toLocaleString()} hint="Login add korle barbe" icon={<Users size={18} />} tone="blue" />
+        <StatCard title="Total Users" value={o.users.toLocaleString()} hint="Grows as users sign up" icon={<Users size={18} />} tone="blue" />
         <StatCard title="Total Shops" value={String(o.shops)} icon={<Store size={18} />} tone="green" />
         <StatCard title="Total Orders" value={o.orders.toLocaleString()} icon={<ShoppingBag size={18} />} tone="orange" />
         <StatCard title="Total Sales" value={formatPrice(o.sales)} icon={<Banknote size={18} />} tone="green" valueClass="text-green-700" />
@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
           <section className="rounded-3xl border border-black/5 bg-white p-6">
             <h2 className="text-lg font-bold text-gray-900">Most reported shops</h2>
             <div className="mt-4 space-y-3">
-              {o.mostReported.length === 0 && <p className="text-sm text-gray-400">Kono report nai</p>}
+              {o.mostReported.length === 0 && <p className="text-sm text-gray-400">No reports</p>}
               {o.mostReported.map((m) => (
                 <div key={m.name} className="flex items-center justify-between text-sm">
                   <span className="font-medium text-gray-700">{m.name}</span>
@@ -46,9 +46,9 @@ export default async function AdminDashboard() {
             <h2 className="flex items-center gap-2 font-bold text-red-700">
               <AlertTriangle size={18} /> Under review
             </h2>
-            <p className="mt-1 text-xs text-red-600/80">Rating 3 er niche ba 5+ pending report hole ekhane ashe</p>
+            <p className="mt-1 text-xs text-red-600/80">Shops with a rating below 3 or 5+ pending reports appear here</p>
             <div className="mt-3 space-y-2">
-              {underReview.length === 0 && <p className="text-sm text-gray-500">Kono shop under review e nai</p>}
+              {underReview.length === 0 && <p className="text-sm text-gray-500">No shops are under review</p>}
               {underReview.map((s) => (
                 <div key={s.id} className="rounded-xl bg-white p-3 text-sm">
                   <p className="font-semibold text-gray-900">{s.name}</p>

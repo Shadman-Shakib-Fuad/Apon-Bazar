@@ -22,7 +22,7 @@ export default function LoginPage() {
         </Link>
 
         <h1 className="text-center text-2xl font-extrabold text-gray-900">Welcome back</h1>
-        <p className="mt-1 text-center text-sm text-gray-500">Account e login koro</p>
+        <p className="mt-1 text-center text-sm text-gray-500">Log in to your account</p>
 
         <form action={googleLoginAction} className="mt-6">
           <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -48,14 +48,14 @@ export default function LoginPage() {
             disabled={pending}
             className="w-full rounded-xl bg-primary py-3 font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
           >
-            {pending ? "Login hocche..." : "Login"}
+            {pending ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <p className="mt-5 text-center text-sm text-gray-500">
-          Account nai?{" "}
+          Need an account?{" "}
           <Link href="/register" className="font-semibold text-primary hover:underline">
-            Register koro
+            Register
           </Link>
         </p>
       </div>

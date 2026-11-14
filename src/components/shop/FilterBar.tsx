@@ -26,7 +26,7 @@ export default function FilterBar({ values }: { values: Values }) {
         <input
           name="q"
           defaultValue={values.q}
-          placeholder="Product er naam"
+          placeholder="Product name"
           className={`${field} pl-9`}
         />
       </div>

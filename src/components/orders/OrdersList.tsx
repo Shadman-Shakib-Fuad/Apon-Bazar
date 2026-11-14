@@ -38,8 +38,8 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
   function cancel(o: OrderView) {
     const warn =
       o.paymentStatus === "paid" && o.paymentMethod.startsWith("Stripe")
-        ? `Order #${o.code} cancel korle taka refund hobe. Cancel korbe?`
-        : `Order #${o.code} cancel korbe?`;
+        ? `Cancelling order #${o.code} will refund your payment. Cancel this order?`
+        : `Cancel order #${o.code}?`;
     if (!confirm(warn)) return;
 
     setMsg(null);
@@ -49,8 +49,8 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
         setMsg({
           ok: true,
           text: res.refunded
-            ? "Order cancel hoyeche, taka refund shuru hoyeche (kichu din lagte pare)."
-            : "Order cancel hoyeche.",
+            ? "Order cancelled. Your refund has started and may take a few days."
+            : "Order cancelled.",
         });
       } else {
         setMsg({ ok: false, text: res.error });
@@ -79,9 +79,9 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
       {orders.length === 0 ? (
         <div className="mt-10 rounded-3xl bg-white p-12 text-center">
           <ClipboardList size={48} className="mx-auto text-gray-300" />
-          <p className="mt-3 text-gray-600">Ekhono kono order nai</p>
+          <p className="mt-3 text-gray-600">You have no orders yet</p>
           <Link href="/" className="mt-4 inline-block font-semibold text-primary hover:underline">
-            Shopping shuru koro
+            Start shopping
           </Link>
         </div>
       ) : (

@@ -43,11 +43,11 @@ async function savePriceToday(productId: unknown, price: number) {
 
 export async function createProduct(input: unknown): Promise<Result> {
   const parsed = createSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Product er tottho thik na." };
+  if (!parsed.success) return { ok: false, error: "Invalid product details." };
   const d = parsed.data;
 
   const shop = await getSellerShop();
-  if (!shop) return { ok: false, error: "Seller shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Seller shop not found." };
 
   await connectDB();
   const product = await Product.create({
@@ -72,18 +72,18 @@ export async function updateProduct(
   id: string,
   input: { price: number; costPrice: number; stock: number }
 ): Promise<Result> {
-  if (!mongoose.isValidObjectId(id)) return { ok: false, error: "Product paoa jayni." };
+  if (!mongoose.isValidObjectId(id)) return { ok: false, error: "Product not found." };
   const parsed = z
     .object({ price: z.number().min(1), costPrice: z.number().min(0), stock: z.number().int().min(0) })
     .safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Price, cost price ar stock thik moto dao." };
+  if (!parsed.success) return { ok: false, error: "Please enter a valid price, cost price and stock." };
 
   const shop = await getSellerShop();
-  if (!shop) return { ok: false, error: "Seller shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Seller shop not found." };
 
   await connectDB();
   const product = await Product.findOne({ _id: id, shopId: shop.id });
-  if (!product) return { ok: false, error: "Ei product tomar shop er na." };
+  if (!product) return { ok: false, error: "This product does not belong to your shop." };
 
   if (parsed.data.price !== product.price) {
     const oldPrice = product.price;
@@ -99,7 +99,7 @@ export async function updateProduct(
         wishes.map((w) => w.userId.toString()),
         {
           title: "Price drop 🎉",
-          message: `${product.name} er dam ৳${oldPrice} theke kome ৳${parsed.data.price} hoyeche`,
+          message: `The price of ${product.name} dropped from ৳${oldPrice} to ৳${parsed.data.price}`,
           link: `/products/${product._id}`,
         }
       );
@@ -116,13 +116,13 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string): Promise<Result> {
-  if (!mongoose.isValidObjectId(id)) return { ok: false, error: "Product paoa jayni." };
+  if (!mongoose.isValidObjectId(id)) return { ok: false, error: "Product not found." };
   const shop = await getSellerShop();
-  if (!shop) return { ok: false, error: "Seller shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Seller shop not found." };
 
   await connectDB();
   const res = await Product.deleteOne({ _id: id, shopId: shop.id });
-  if (res.deletedCount === 0) return { ok: false, error: "Ei product tomar shop er na." };
+  if (res.deletedCount === 0) return { ok: false, error: "This product does not belong to your shop." };
   await PriceHistory.deleteMany({ productId: id });
   await Wishlist.deleteMany({ productId: id });
 
@@ -132,16 +132,16 @@ export async function deleteProduct(id: string): Promise<Result> {
 
 export async function updateOrderStatus(orderId: string, statusIndex: number): Promise<Result> {
   if (!mongoose.isValidObjectId(orderId) || statusIndex < 0 || statusIndex > 4) {
-    return { ok: false, error: "Status thik na." };
+    return { ok: false, error: "Invalid status." };
   }
   const shop = await getSellerShop();
-  if (!shop) return { ok: false, error: "Seller shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Seller shop not found." };
 
   await connectDB();
   const order = await Order.findOne({ _id: orderId, shopId: shop.id });
-  if (!order) return { ok: false, error: "Order paoa jayni." };
-  if (order.cancelled) return { ok: false, error: "Cancel kora order er status bodlano jabe na." };
-  if (statusIndex < order.statusIndex) return { ok: false, error: "Pichone jaoa jabe na." };
+  if (!order) return { ok: false, error: "Order not found." };
+  if (order.cancelled) return { ok: false, error: "The status of a cancelled order cannot be changed." };
+  if (statusIndex < order.statusIndex) return { ok: false, error: "Status cannot go backwards." };
 
   const changed = statusIndex !== order.statusIndex;
 
@@ -164,7 +164,7 @@ export async function updateOrderStatus(orderId: string, statusIndex: number): P
   if (changed && order.userId) {
     await notify(order.userId.toString(), {
       title: `Order ${ORDER_STEPS[statusIndex]}`,
-      message: `Tomar order #${orderCode(order._id.toString())} ekhon "${ORDER_STEPS[statusIndex]}" obosthay ache.`,
+      message: `Your order #${orderCode(order._id.toString())} is now "${ORDER_STEPS[statusIndex]}".`,
       link: "/orders",
     });
   }

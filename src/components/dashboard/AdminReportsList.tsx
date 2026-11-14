@@ -28,7 +28,7 @@ export default function AdminReportsList({
       {error && <p className="mb-3 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
 
       <div className="space-y-4">
-        {reports.length === 0 && <p className="rounded-3xl bg-white p-10 text-center text-gray-400">Kono report nai</p>}
+        {reports.length === 0 && <p className="rounded-3xl bg-white p-10 text-center text-gray-400">No reports</p>}
         {reports.map((r) => (
           <div key={r.id} className="rounded-3xl border border-black/5 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -73,7 +73,7 @@ export default function AdminReportsList({
           <History size={18} /> Admin action log
         </h2>
         {logs.length === 0 ? (
-          <p className="mt-3 text-sm text-gray-400">Ekhono kono action nai</p>
+          <p className="mt-3 text-sm text-gray-400">No actions yet</p>
         ) : (
           <ul className="mt-3 space-y-2 text-sm text-gray-600">
             {logs.map((l) => (

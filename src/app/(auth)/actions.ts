@@ -18,7 +18,7 @@ export async function loginAction(
       redirectTo: "/",
     });
   } catch (error) {
-    if (error instanceof AuthError) return "Email ba password thik na.";
+    if (error instanceof AuthError) return "Incorrect email or password.";
     throw error; // redirect ei error diye hoy, tai abar throw korte hobe
   }
   return null;
@@ -50,11 +50,11 @@ export async function registerAction(
     password: formData.get("password"),
     role: formData.get("role"),
   });
-  if (!parsed.success) return "Naam, thik email ar kom pokkhe 6 character er password dao.";
+  if (!parsed.success) return "Enter your name, a valid email and a password of at least 6 characters.";
   const { name, email, password, role } = parsed.data;
 
   await connectDB();
-  if (await User.exists({ email })) return "Ei email diye already account ache.";
+  if (await User.exists({ email })) return "An account with this email already exists.";
 
   const hash = await bcrypt.hash(password, 10);
   await User.create({ name, email, password: hash, role, provider: "credentials" });
@@ -66,7 +66,7 @@ export async function registerAction(
       redirectTo: role === "seller" ? "/open-shop" : "/",
     });
   } catch (error) {
-    if (error instanceof AuthError) return "Account hoyeche, kintu login hoyni. Login page e jao.";
+    if (error instanceof AuthError) return "Your account was created but login failed. Please go to the login page.";
     throw error;
   }
   return null;

@@ -57,7 +57,7 @@ export default function SellerProductsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">My Products</h1>
-          <p className="text-sm text-gray-500">Cost price shudhu tumi ar admin dekhte pabe</p>
+          <p className="text-sm text-gray-500">Only you and the admin can see the cost price</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}

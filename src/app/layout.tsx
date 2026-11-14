@@ -6,7 +6,7 @@ import { CartProvider } from "@/components/cart/CartProvider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Apon Bazar - Apon manush, apon dokan",
+  title: "Apon Bazar - Your Local Market Online",
   description: "Online local market platform",
 };
 

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SellerDashboard() {
   const shop = await getSellerShop();
-  if (!shop) return <p className="text-gray-600">Shop paoa jayni. Age seed script chalao.</p>;
+  if (!shop) return <p className="text-gray-600">Shop not found.</p>;
 
   const { daily, items } = await getSellerDashboard(shop.id);
 
@@ -55,7 +55,7 @@ export default async function SellerDashboard() {
         <StatCard
           title="Best Seller"
           value={best ? best.name : "No sales yet"}
-          hint={best ? `${best.sold} units sold` : "Order ashle ekhane dekhabe"}
+          hint={best ? `${best.sold} units sold` : "Appears once you receive orders"}
           icon={<Trophy size={18} />}
           tone="orange"
         />

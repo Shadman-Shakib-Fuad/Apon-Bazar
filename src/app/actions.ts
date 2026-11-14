@@ -32,28 +32,28 @@ export async function placeOrder(
   input: unknown
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Order korte age login koro." };
+  if (!user) return { ok: false, error: "Please log in to place an order." };
 
   const parsed = orderSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Form er tottho thik na, abar check koro." };
+  if (!parsed.success) return { ok: false, error: "Some details are invalid. Please check the form." };
   const d = parsed.data;
 
   if (d.deliveryType === "home" && d.address.length < 5) {
-    return { ok: false, error: "Home delivery er jonno puro address dao." };
+    return { ok: false, error: "Please enter your full address for home delivery." };
   }
   if (
     !mongoose.isValidObjectId(d.shopId) ||
     d.items.some((i) => !mongoose.isValidObjectId(i.productId))
   ) {
-    return { ok: false, error: "Cart e purono product ache. Cart khali kore abar try koro." };
+    return { ok: false, error: "Your cart has outdated items. Clear the cart and try again." };
   }
 
   await connectDB();
 
   const shop = await Shop.findById(d.shopId).lean<ShopDoc>();
-  if (!shop) return { ok: false, error: "Shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Shop not found." };
   if (shop.status === "restricted") {
-    return { ok: false, error: "Ei shop ta restricted, order kora jabe na." };
+    return { ok: false, error: "This shop is restricted and cannot accept orders." };
   }
 
   const products = await Product.find({
@@ -65,9 +65,9 @@ export async function placeOrder(
   const lines = [];
   for (const it of d.items) {
     const p = pmap.get(it.productId);
-    if (!p) return { ok: false, error: "Ekta product paoa jayni." };
+    if (!p) return { ok: false, error: "A product was not found." };
     if (p.stock < it.qty) {
-      return { ok: false, error: `${p.name} er stock kom (${p.stock} ta ache).` };
+      return { ok: false, error: `Not enough stock for ${p.name} (${p.stock} left).` };
     }
     lines.push({
       productId: p._id,
@@ -117,7 +117,7 @@ export async function placeOrder(
 
     await notify(sellerId, {
       title: "New order 🛒",
-      message: `${d.customerName} order korechhe #${orderCode(order._id.toString())} (৳${subtotal + deliveryCharge})`,
+      message: `${d.customerName} placed order #${orderCode(order._id.toString())} (৳${subtotal + deliveryCharge})`,
       link: "/seller/orders",
     });
 
@@ -128,7 +128,7 @@ export async function placeOrder(
         await notify(sellerId, {
           title: after === 0 ? "Out of stock ⚠️" : "Low stock ⚠️",
           message:
-            after === 0 ? `${l.name} er stock sesh` : `${l.name} er stock matro ${after} ta ache`,
+            after === 0 ? `${l.name} is out of stock` : `Only ${after} left of ${l.name}`,
           link: "/seller/products",
         });
       }
@@ -146,18 +146,18 @@ const reviewSchema = z.object({
 
 export async function submitReview(input: unknown): Promise<Result> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Review dite age login koro." };
+  if (!user) return { ok: false, error: "Please log in to write a review." };
 
   const parsed = reviewSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Rating thik moto dao." };
+  if (!parsed.success) return { ok: false, error: "Please choose a valid rating." };
   const d = parsed.data;
-  if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop paoa jayni." };
+  if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop not found." };
 
   await connectDB();
   const shop = await Shop.findById(d.shopId).lean<ShopDoc>();
-  if (!shop) return { ok: false, error: "Shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Shop not found." };
   if (shop.ownerId?.toString() === user.id) {
-    return { ok: false, error: "Nijer shop e nijer review deoa jabe na." };
+    return { ok: false, error: "You cannot review your own shop." };
   }
 
   await Review.create({
@@ -183,16 +183,16 @@ const reportSchema = z.object({
 
 export async function submitReport(input: unknown): Promise<Result> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Report korte age login koro." };
+  if (!user) return { ok: false, error: "Please log in to report a shop." };
 
   const parsed = reportSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Reason thik moto dao." };
+  if (!parsed.success) return { ok: false, error: "Please choose a valid reason." };
   const d = parsed.data;
-  if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop paoa jayni." };
+  if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop not found." };
 
   await connectDB();
   const shop = await Shop.findById(d.shopId).lean<ShopDoc>();
-  if (!shop) return { ok: false, error: "Shop paoa jayni." };
+  if (!shop) return { ok: false, error: "Shop not found." };
 
   await Report.create({
     shopId: shop._id,

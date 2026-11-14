@@ -44,8 +44,8 @@ export default function OpenShopForm() {
           ))}
         </div>
       </div>
-      <input required placeholder="Shop er naam" className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-      <input required placeholder="Area (jemon: Main Bazar)" className={input} value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} />
+      <input required placeholder="Shop name" className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      <input required placeholder="Area (e.g. Main Bazar)" className={input} value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} />
       <div>
         <p className="mb-1 text-sm font-medium text-gray-700">Delivery charge (৳)</p>
         <input required type="number" min="0" max="500" className={input} value={form.deliveryCharge} onChange={(e) => setForm({ ...form, deliveryCharge: e.target.value })} />
@@ -55,7 +55,7 @@ export default function OpenShopForm() {
         disabled={pending}
         className="w-full rounded-full bg-primary py-3 font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
       >
-        {pending ? "Shop banachhi..." : "Open my shop"}
+        {pending ? "Creating shop..." : "Open my shop"}
       </button>
     </form>
   );

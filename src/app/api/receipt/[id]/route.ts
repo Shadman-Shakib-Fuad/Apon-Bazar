@@ -12,7 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ message: "Login koro" }, { status: 401 });
+  if (!user) return NextResponse.json({ message: "Please log in" }, { status: 401 });
 
   const { id } = await params;
   const order = await getOrderById(id);

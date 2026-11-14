@@ -25,7 +25,7 @@ export default function ReportButton({
     startTransition(async () => {
       const res = await submitReport({ shopId, reason, description });
       if (res.ok) {
-        setMsg({ ok: true, text: "Report pathano hoyeche. Admin dekhbe." });
+        setMsg({ ok: true, text: "Report submitted. An admin will review it." });
         setDescription("");
         setOpen(false);
       } else {
@@ -40,9 +40,9 @@ export default function ReportButton({
   if (!loggedIn) {
     return (
       <p className="mt-4 text-xs text-gray-500">
-        Report korte{" "}
+        To report a shop,{" "}
         <Link href="/login" className="font-semibold text-primary hover:underline">
-          login koro
+          log in
         </Link>
       </p>
     );
@@ -64,12 +64,12 @@ export default function ReportButton({
               <option key={r}>{r}</option>
             ))}
           </select>
-          <textarea placeholder="Ki hoyechhe likho" rows={3} className={input} value={description} onChange={(e) => setDescription(e.target.value)} />
+          <textarea placeholder="Describe what happened" rows={3} className={input} value={description} onChange={(e) => setDescription(e.target.value)} />
           <button
             disabled={pending}
             className="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
           >
-            {pending ? "Pathachhi..." : "Submit report"}
+            {pending ? "Submitting..." : "Submit report"}
           </button>
         </form>
       )}

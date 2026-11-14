@@ -17,14 +17,14 @@ const schema = z.object({
 
 export async function createShop(input: unknown): Promise<Result> {
   const user = await getCurrentUser();
-  if (!user || user.role !== "seller") return { ok: false, error: "Shudhu seller shop khulte pare." };
+  if (!user || user.role !== "seller") return { ok: false, error: "Only sellers can open a shop." };
 
   const parsed = schema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Shop er naam, area ar delivery charge thik moto dao." };
+  if (!parsed.success) return { ok: false, error: "Please enter a valid shop name, area and delivery charge." };
 
   await connectDB();
   if (await Shop.exists({ ownerId: user.id })) {
-    return { ok: false, error: "Tomar already ekta shop ache." };
+    return { ok: false, error: "You already have a shop." };
   }
 
   await Shop.create({ ...parsed.data, ownerId: user.id, ownerName: user.name ?? "Seller" });

@@ -15,17 +15,17 @@ export async function cancelOrder(
   orderId: string
 ): Promise<{ ok: true; refunded: boolean } | { ok: false; error: string }> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Login koro." };
-  if (!mongoose.isValidObjectId(orderId)) return { ok: false, error: "Order paoa jayni." };
+  if (!user) return { ok: false, error: "Please log in." };
+  if (!mongoose.isValidObjectId(orderId)) return { ok: false, error: "Order not found." };
 
   await connectDB();
   const order = await Order.findById(orderId);
   if (!order || order.userId?.toString() !== user.id) {
-    return { ok: false, error: "Order paoa jayni." };
+    return { ok: false, error: "Order not found." };
   }
-  if (order.cancelled) return { ok: false, error: "Ei order already cancel kora." };
+  if (order.cancelled) return { ok: false, error: "This order is already cancelled." };
   if (order.statusIndex >= 2) {
-    return { ok: false, error: "Order Packed hoye gele ar cancel kora jabe na." };
+    return { ok: false, error: "This order is already packed and can no longer be cancelled." };
   }
 
   let refunded = false;
@@ -33,14 +33,14 @@ export async function cancelOrder(
   if (order.paymentStatus === "paid" && order.paymentMethod.startsWith("Stripe")) {
     // Stripe payment hole age refund, refund na hole order cancel hobe na
     if (!order.transactionId.startsWith("pi_")) {
-      return { ok: false, error: "Refund er payment id paoa jayni. Admin er sathe jogajog koro." };
+      return { ok: false, error: "Payment ID for the refund was not found. Please contact an admin." };
     }
     try {
       await getStripe().refunds.create({ payment_intent: order.transactionId });
       refunded = true;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Stripe error";
-      return { ok: false, error: `Refund hoyni: ${msg}` };
+      return { ok: false, error: `Refund failed: ${msg}` };
     }
   } else if (order.paymentStatus === "unpaid" && order.stripeSessionId) {
     // Payment na kora Stripe page ta bondho kore dei, jate pore keu taka dite na pare
@@ -68,7 +68,7 @@ export async function cancelOrder(
   if (shop?.ownerId) {
     await notify(shop.ownerId.toString(), {
       title: "Order cancelled ❌",
-      message: `Order #${orderCode(order._id.toString())} customer cancel korechhe.`,
+      message: `The customer cancelled order #${orderCode(order._id.toString())}.`,
       link: "/seller/orders",
     });
   }

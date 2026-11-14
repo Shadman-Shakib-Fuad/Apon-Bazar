@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-3">
         <div>
           <h3 className="text-lg font-bold">Apon Bazar</h3>
-          <p className="mt-2 text-sm text-white/70">Apon manush, apon dokan. Tomar paray, tomar bazar.</p>
+          <p className="mt-2 text-sm text-white/70">Fresh products from the local shops in your neighborhood.</p>
         </div>
         <div>
           <h4 className="font-semibold">Quick Links</h4>

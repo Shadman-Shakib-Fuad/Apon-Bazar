@@ -40,9 +40,9 @@ export default async function PaymentSuccessPage({
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <XCircle size={64} className="mx-auto text-red-400" />
-        <h1 className="mt-4 text-2xl font-extrabold text-gray-900">Payment complete hoyni</h1>
+        <h1 className="mt-4 text-2xl font-extrabold text-gray-900">Payment was not completed</h1>
         <p className="mt-2 text-sm text-gray-500">
-          Taka kete thakle kichukkhon por My Orders e check koro, na hole abar try koro.
+          If money was deducted, check My Orders in a few minutes. Otherwise, please try again.
         </p>
         <Link href="/orders" className="mt-6 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-dark">
           My Orders
@@ -55,7 +55,7 @@ export default async function PaymentSuccessPage({
     <div className="mx-auto max-w-md px-4 py-16 text-center">
       <CheckCircle2 size={72} className="mx-auto text-green-500" />
       <h1 className="mt-4 text-2xl font-extrabold text-gray-900">Payment successful! 🎉</h1>
-      <p className="mt-1 text-sm text-gray-500">Tomar order confirm hoyeche</p>
+      <p className="mt-1 text-sm text-gray-500">Your order is confirmed</p>
 
       <div className="mt-6 rounded-3xl border border-black/5 bg-white p-5 text-left text-sm">
         <div className="flex justify-between py-1"><span className="text-gray-500">Order</span><b>#{order.code}</b></div>

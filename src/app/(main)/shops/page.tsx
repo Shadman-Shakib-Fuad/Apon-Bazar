@@ -11,7 +11,7 @@ export default async function ShopsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="text-2xl font-extrabold text-gray-900">All Shops</h1>
-      <p className="mt-1 text-sm text-gray-500">Tomar paray er local dokan gulo</p>
+      <p className="mt-1 text-sm text-gray-500">Local shops in your neighborhood</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shops.map((s) => (

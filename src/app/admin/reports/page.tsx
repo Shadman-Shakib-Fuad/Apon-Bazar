@@ -9,7 +9,7 @@ export default async function AdminReportsPage() {
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-gray-900">Reports</h1>
-      <p className="mb-6 text-sm text-gray-500">Ke kake report korlo, sob ekhane</p>
+      <p className="mb-6 text-sm text-gray-500">See who reported which shop</p>
       <AdminReportsList reports={reports} logs={logs} />
     </div>
   );
