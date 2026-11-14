@@ -10,6 +10,9 @@ import Product, { ProductDoc } from "@/models/Product";
 import Order from "@/models/Order";
 import Review from "@/models/Review";
 import Report from "@/models/Report";
+import { notify } from "@/lib/notify";
+import { orderCode } from "@/lib/queries";
+import { LOW_STOCK } from "@/lib/utils";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -108,6 +111,30 @@ export async function placeOrder(
   );
 
   revalidatePath("/", "layout");
+  // Seller ke notification: notun order ar low stock
+  if (shop.ownerId) {
+    const sellerId = shop.ownerId.toString();
+
+    await notify(sellerId, {
+      title: "New order 🛒",
+      message: `${d.customerName} order korechhe #${orderCode(order._id.toString())} (৳${subtotal + deliveryCharge})`,
+      link: "/seller/orders",
+    });
+
+    for (const l of lines) {
+      const before = pmap.get(l.productId.toString())?.stock ?? 0;
+      const after = before - l.qty;
+      if (after === 0 || (after <= LOW_STOCK && before > LOW_STOCK)) {
+        await notify(sellerId, {
+          title: after === 0 ? "Out of stock ⚠️" : "Low stock ⚠️",
+          message:
+            after === 0 ? `${l.name} er stock sesh` : `${l.name} er stock matro ${after} ta ache`,
+          link: "/seller/products",
+        });
+      }
+    }
+  }
+
   return { ok: true, id: order._id.toString() };
 }
 

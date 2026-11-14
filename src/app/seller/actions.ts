@@ -7,7 +7,10 @@ import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import PriceHistory from "@/models/PriceHistory";
 import Order from "@/models/Order";
-import { getSellerShop } from "@/lib/queries";
+import Wishlist from "@/models/Wishlist";
+import { getSellerShop, orderCode } from "@/lib/queries";
+import { notify, notifyMany } from "@/lib/notify";
+import { ORDER_STEPS } from "@/lib/orders";
 import { categories } from "@/data/mock";
 
 type Result = { ok: true } | { ok: false; error: string };
@@ -82,11 +85,27 @@ export async function updateProduct(
   const product = await Product.findOne({ _id: id, shopId: shop.id });
   if (!product) return { ok: false, error: "Ei product tomar shop er na." };
 
-  // Selling price bodlale purono dam "yesterdayPrice" e jabe ar price history te save hobe
   if (parsed.data.price !== product.price) {
-    product.yesterdayPrice = product.price;
+    const oldPrice = product.price;
+    product.yesterdayPrice = oldPrice;
     await savePriceToday(product._id, parsed.data.price);
+
+    // Dam kome gele jara wishlist e rekhechhe tader alert
+    if (parsed.data.price < oldPrice) {
+      const wishes = await Wishlist.find({ productId: product._id }).lean<
+        { userId: mongoose.Types.ObjectId }[]
+      >();
+      await notifyMany(
+        wishes.map((w) => w.userId.toString()),
+        {
+          title: "Price drop 🎉",
+          message: `${product.name} er dam ৳${oldPrice} theke kome ৳${parsed.data.price} hoyeche`,
+          link: `/products/${product._id}`,
+        }
+      );
+    }
   }
+
   product.price = parsed.data.price;
   product.costPrice = parsed.data.costPrice;
   product.stock = parsed.data.stock;
@@ -105,6 +124,7 @@ export async function deleteProduct(id: string): Promise<Result> {
   const res = await Product.deleteOne({ _id: id, shopId: shop.id });
   if (res.deletedCount === 0) return { ok: false, error: "Ei product tomar shop er na." };
   await PriceHistory.deleteMany({ productId: id });
+  await Wishlist.deleteMany({ productId: id });
 
   revalidatePath("/", "layout");
   return { ok: true };
@@ -122,11 +142,14 @@ export async function updateOrderStatus(orderId: string, statusIndex: number): P
   if (!order) return { ok: false, error: "Order paoa jayni." };
   if (statusIndex < order.statusIndex) return { ok: false, error: "Pichone jaoa jabe na." };
 
+  const changed = statusIndex !== order.statusIndex;
+
   const history = [...order.statusHistory];
   while (history.length <= statusIndex) history.push(new Date());
 
   order.statusIndex = statusIndex;
   order.statusHistory = history;
+  // Shudhu Cash on Delivery order delivered hole "paid" hobe, Stripe order er payment Stripe theke ashe
   if (
     statusIndex === 4 &&
     order.paymentStatus === "unpaid" &&
@@ -135,6 +158,15 @@ export async function updateOrderStatus(orderId: string, statusIndex: number): P
     order.paymentStatus = "paid";
   }
   await order.save();
+
+  // Customer ke alert
+  if (changed && order.userId) {
+    await notify(order.userId.toString(), {
+      title: `Order ${ORDER_STEPS[statusIndex]}`,
+      message: `Tomar order #${orderCode(order._id.toString())} ekhon "${ORDER_STEPS[statusIndex]}" obosthay ache.`,
+      link: "/orders",
+    });
+  }
 
   revalidatePath("/", "layout");
   return { ok: true };

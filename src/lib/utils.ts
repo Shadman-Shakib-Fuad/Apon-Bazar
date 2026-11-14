@@ -39,3 +39,6 @@ export function isUnderReview(s: {
 }) {
   return (s.reviewCount > 0 && s.rating < 3) || s.pendingReports >= 5;
 }
+
+// Stock ei number er niche gele seller ke "low stock" alert jabe
+export const LOW_STOCK = 30;

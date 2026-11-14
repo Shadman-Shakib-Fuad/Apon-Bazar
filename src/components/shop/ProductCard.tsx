@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, Heart } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import { useWishlist } from "@/components/wishlist/WishlistProvider";
 import type { ProductView } from "@/types";
 import { formatPrice, priceDiff } from "@/lib/utils";
 
 export default function ProductCard({ product }: { product: ProductView }) {
   const { addItem } = useCart();
+  const { ids, toggle } = useWishlist();
+  const wished = ids.includes(product.id);
   const diff = priceDiff(product.price, product.yesterdayPrice);
   const restricted = product.shopStatus === "restricted";
   const out = product.stock === 0;
@@ -19,6 +22,14 @@ export default function ProductCard({ product }: { product: ProductView }) {
           {product.emoji}
         </div>
       </Link>
+
+      <button
+        onClick={() => toggle(product.id)}
+        aria-label="Wishlist"
+        className="absolute left-5 top-5 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:scale-110"
+      >
+        <Heart size={16} className={wished ? "fill-red-500 text-red-500" : "text-gray-500"} />
+      </button>
 
       <div className="mt-3">
         <p className="text-base font-bold text-gray-900">
@@ -52,7 +63,7 @@ export default function ProductCard({ product }: { product: ProductView }) {
       </div>
 
       {restricted || out ? (
-        <span className="absolute right-3 top-3 rounded-full bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-white">
+        <span className="absolute right-5 top-5 rounded-full bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-white">
           {restricted ? "Shop restricted" : "Out of stock"}
         </span>
       ) : (

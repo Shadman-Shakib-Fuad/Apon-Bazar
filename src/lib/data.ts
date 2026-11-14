@@ -22,7 +22,7 @@ function toShop(s: ShopDoc): ShopView {
   };
 }
 
-function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductView {
+export function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductView {
   const shop = shops.get(p.shopId.toString());
   return {
     id: p._id.toString(),
@@ -41,7 +41,7 @@ function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductView {
   };
 }
 
-async function shopMap() {
+export async function shopMap() {
   const shops = await Shop.find().lean<ShopDoc[]>();
   return new Map(shops.map((s) => [s._id.toString(), s]));
 }

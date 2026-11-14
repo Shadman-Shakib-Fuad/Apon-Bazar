@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Store, ShoppingCart, Search, User, Menu, X, LogOut } from "lucide-react";
+import { Store, ShoppingCart, Search, User, Menu, X, LogOut, Heart, Bell } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { logoutAction } from "@/app/(auth)/actions";
 
@@ -18,7 +18,7 @@ const links = [
   { href: "/orders", label: "My Orders" },
 ];
 
-export default function Navbar({ user }: { user: NavUser }) {
+export default function Navbar({ user, unread = 0 }: { user: NavUser; unread?: number }) {
   const { count } = useCart();
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -29,6 +29,10 @@ export default function Navbar({ user }: { user: NavUser }) {
       : user?.role === "admin"
       ? { href: "/admin", label: "Admin Panel" }
       : null;
+
+  const iconBtn = "relative rounded-full p-2 text-gray-700 hover:bg-primary-light";
+  const badge =
+    "absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold text-white";
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur">
@@ -53,18 +57,26 @@ export default function Navbar({ user }: { user: NavUser }) {
           <input name="q" placeholder="Search products..." className="w-full bg-transparent px-2 py-2 text-sm outline-none" />
         </form>
 
-        <div className="ml-auto flex items-center gap-2 md:ml-0">
-          <Link href="/cart" className="relative rounded-full p-2 text-gray-700 hover:bg-primary-light">
+        <div className="ml-auto flex items-center gap-1 md:ml-0">
+          {user && (
+            <>
+              <Link href="/wishlist" className={iconBtn} aria-label="Wishlist">
+                <Heart size={22} />
+              </Link>
+              <Link href="/notifications" className={iconBtn} aria-label="Notifications">
+                <Bell size={22} />
+                {unread > 0 && <span className={`${badge} bg-red-500`}>{unread > 9 ? "9+" : unread}</span>}
+              </Link>
+            </>
+          )}
+
+          <Link href="/cart" className={iconBtn} aria-label="Cart">
             <ShoppingCart size={22} />
-            {count > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
-                {count}
-              </span>
-            )}
+            {count > 0 && <span className={`${badge} bg-accent`}>{count}</span>}
           </Link>
 
           {user ? (
-            <div className="relative hidden sm:block">
+            <div className="relative ml-1 hidden sm:block">
               <button
                 onClick={() => setMenu(!menu)}
                 className="flex items-center gap-2 rounded-full bg-primary-light py-1.5 pl-1.5 pr-4 text-sm font-semibold text-primary-dark"
@@ -76,18 +88,23 @@ export default function Navbar({ user }: { user: NavUser }) {
               </button>
 
               {menu && (
-                <div
-                  className="absolute right-0 mt-2 w-52 rounded-2xl border border-black/5 bg-white p-2 shadow-lg"
-                  onClick={() => setMenu(false)}
-                >
+                <div className="absolute right-0 mt-2 w-52 rounded-2xl border border-black/5 bg-white p-2 shadow-lg">
                   <p className="px-3 py-2 text-xs capitalize text-gray-400">{user.role} account</p>
-                  <Link href="/profile" className="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50">My Profile</Link>
-                  <Link href="/orders" className="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50">My Orders</Link>
+                  <Link href="/profile" onClick={() => setMenu(false)} className="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50">
+                    My Profile
+                  </Link>
+                  <Link href="/orders" onClick={() => setMenu(false)} className="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50">
+                    My Orders
+                  </Link>
+                  <Link href="/wishlist" onClick={() => setMenu(false)} className="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50">
+                    Wishlist
+                  </Link>
                   {panel && (
-                    <Link href={panel.href} className="block rounded-xl px-3 py-2 text-sm font-semibold text-primary hover:bg-primary-light">
+                    <Link href={panel.href} onClick={() => setMenu(false)} className="block rounded-xl px-3 py-2 text-sm font-semibold text-primary hover:bg-primary-light">
                       {panel.label}
                     </Link>
                   )}
+                  {/* Ekhane kono onClick nai, jate form thikmoto submit hoy */}
                   <form action={logoutAction}>
                     <button className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-600 hover:bg-red-50">
                       <LogOut size={15} /> Logout
@@ -99,7 +116,7 @@ export default function Navbar({ user }: { user: NavUser }) {
           ) : (
             <Link
               href="/login"
-              className="hidden items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark sm:flex"
+              className="ml-1 hidden items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark sm:flex"
             >
               <User size={16} /> Login
             </Link>
@@ -124,6 +141,10 @@ export default function Navbar({ user }: { user: NavUser }) {
           ))}
           {user ? (
             <>
+              <Link href="/wishlist" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-gray-700">Wishlist</Link>
+              <Link href="/notifications" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-gray-700">
+                Notifications {unread > 0 && `(${unread})`}
+              </Link>
               <Link href="/profile" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-gray-700">My Profile</Link>
               {panel && (
                 <Link href={panel.href} onClick={() => setOpen(false)} className="block py-2 text-sm font-semibold text-primary">

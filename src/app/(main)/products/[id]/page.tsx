@@ -7,6 +7,7 @@ import PriceHistoryChart from "@/components/shop/PriceHistoryChart";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import ProductCard from "@/components/shop/ProductCard";
 export const dynamic = "force-dynamic";
+import WishlistButton from "@/components/wishlist/WishlistButton";
 
 export default async function ProductPage({
   params,
@@ -73,7 +74,10 @@ export default async function ProductPage({
           </p>
 
           <div className="mt-6">
-            <AddToCartButton product={product} />
+            <div className="flex flex-wrap items-center gap-3">
+              <AddToCartButton product={product} />
+              <WishlistButton productId={product.id} />
+            </div>
           </div>
         </div>
       </div>
