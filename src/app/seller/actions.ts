@@ -140,6 +140,7 @@ export async function updateOrderStatus(orderId: string, statusIndex: number): P
   await connectDB();
   const order = await Order.findOne({ _id: orderId, shopId: shop.id });
   if (!order) return { ok: false, error: "Order paoa jayni." };
+  if (order.cancelled) return { ok: false, error: "Cancel kora order er status bodlano jabe na." };
   if (statusIndex < order.statusIndex) return { ok: false, error: "Pichone jaoa jabe na." };
 
   const changed = statusIndex !== order.statusIndex;

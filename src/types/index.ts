@@ -53,6 +53,7 @@ export type OrderView = {
   history: string[];
   paymentStatus: "unpaid" | "paid" | "refunded";
   paymentMethod: string;
+  cancelled: boolean;
   transactionId: string;
   createdAt: string;
 };

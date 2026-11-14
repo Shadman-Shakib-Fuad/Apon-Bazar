@@ -94,7 +94,7 @@ export default function ReceiptDocument({ order }: { order: OrderView }) {
             </Text>
             <Text style={styles.value}>
               <Text style={styles.bold}>Order status: </Text>
-              {ORDER_STEPS[order.statusIndex]}
+              {order.cancelled ? "Cancelled" : ORDER_STEPS[order.statusIndex]}
             </Text>
           </View>
 

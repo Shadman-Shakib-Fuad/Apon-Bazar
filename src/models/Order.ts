@@ -32,6 +32,8 @@ const OrderSchema = new Schema(
     paymentMethod: { type: String, default: "Cash on Delivery" },
     transactionId: { type: String, default: "" },
     stripeSessionId: { type: String, default: "" },
+    cancelled: { type: Boolean, default: false },
+    cancelledAt: { type: Date },
   },
   { timestamps: true }
 );

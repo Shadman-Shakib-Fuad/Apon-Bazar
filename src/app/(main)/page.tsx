@@ -2,16 +2,48 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, MapPin } from "lucide-react";
 import ProductCard from "@/components/shop/ProductCard";
+import FilterBar from "@/components/shop/FilterBar";
 import { categories } from "@/data/mock";
-import { getProducts, getShops } from "@/lib/data";
+import { searchProducts, getShops } from "@/lib/data";
+
+type Sort = "price_asc" | "price_desc" | "newest";
+
+function num(v?: string) {
+  if (!v) return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+}
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; q?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    q?: string;
+    min?: string;
+    max?: string;
+    rating?: string;
+    sort?: string;
+  }>;
 }) {
-  const { category, q } = await searchParams;
-  const [filtered, shops] = await Promise.all([getProducts({ category, q }), getShops()]);
+  const sp = await searchParams;
+  const category = sp.category || undefined;
+  const q = sp.q || undefined;
+  const sort = (["price_asc", "price_desc", "newest"].includes(sp.sort ?? "")
+    ? sp.sort
+    : undefined) as Sort | undefined;
+
+  const [filtered, shops] = await Promise.all([
+    searchProducts({
+      category,
+      q,
+      minPrice: num(sp.min),
+      maxPrice: num(sp.max),
+      minRating: num(sp.rating),
+      sort,
+    }),
+    getShops(),
+  ]);
 
   return (
     <div>
@@ -98,27 +130,16 @@ export default async function Home({
           </aside>
 
           <section>
-            <div className="mb-4 flex gap-2 overflow-x-auto pb-2 lg:hidden">
-              <Link
-                href="/"
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${
-                  !category ? "bg-primary text-white" : "bg-white text-gray-700"
-                }`}
-              >
-                All
-              </Link>
-              {categories.map((c) => (
-                <Link
-                  key={c.name}
-                  href={`/?category=${c.name}`}
-                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${
-                    category === c.name ? "bg-primary text-white" : "bg-white text-gray-700"
-                  }`}
-                >
-                  {c.emoji} {c.name}
-                </Link>
-              ))}
-            </div>
+            <FilterBar
+              values={{
+                q,
+                category,
+                min: sp.min,
+                max: sp.max,
+                rating: sp.rating,
+                sort: sp.sort,
+              }}
+            />
 
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">
@@ -134,7 +155,7 @@ export default async function Home({
 
             {filtered.length === 0 ? (
               <div className="rounded-2xl bg-white p-10 text-center text-gray-500">
-                Kono product paoa jayni 😕
+                Kono product paoa jayni 😕 Filter kom kore abar try koro.
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">

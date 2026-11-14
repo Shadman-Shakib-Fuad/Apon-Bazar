@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ClipboardList, RefreshCw, Download, CreditCard } from "lucide-react";
 import OrderTimeline from "@/components/orders/OrderTimeline";
 import { createCheckoutSession } from "@/app/payment-actions";
+import { cancelOrder } from "@/app/order-actions";
 import { ORDER_STEPS } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 import type { OrderView } from "@/types";
@@ -21,16 +22,39 @@ const badge = [
 export default function OrdersList({ orders }: { orders: OrderView[] }) {
   const router = useRouter();
   const [tracking, setTracking] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const trackedOrder = orders.find((o) => o.id === tracking);
 
   function payNow(id: string) {
-    setError("");
+    setMsg(null);
     startTransition(async () => {
       const res = await createCheckoutSession(id);
       if (res.ok) window.location.href = res.url;
-      else setError(res.error);
+      else setMsg({ ok: false, text: res.error });
+    });
+  }
+
+  function cancel(o: OrderView) {
+    const warn =
+      o.paymentStatus === "paid" && o.paymentMethod.startsWith("Stripe")
+        ? `Order #${o.code} cancel korle taka refund hobe. Cancel korbe?`
+        : `Order #${o.code} cancel korbe?`;
+    if (!confirm(warn)) return;
+
+    setMsg(null);
+    startTransition(async () => {
+      const res = await cancelOrder(o.id);
+      if (res.ok) {
+        setMsg({
+          ok: true,
+          text: res.refunded
+            ? "Order cancel hoyeche, taka refund shuru hoyeche (kichu din lagte pare)."
+            : "Order cancel hoyeche.",
+        });
+      } else {
+        setMsg({ ok: false, text: res.error });
+      }
     });
   }
 
@@ -46,7 +70,11 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
         </button>
       </div>
 
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+      {msg && (
+        <p className={`mt-4 rounded-xl p-3 text-sm ${msg.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+          {msg.text}
+        </p>
+      )}
 
       {orders.length === 0 ? (
         <div className="mt-10 rounded-3xl bg-white p-12 text-center">
@@ -59,9 +87,12 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
       ) : (
         <div className="mt-6 space-y-4">
           {orders.map((o) => {
-            const needsPayment = o.paymentStatus === "unpaid" && o.paymentMethod.startsWith("Stripe");
+            const needsPayment =
+              !o.cancelled && o.paymentStatus === "unpaid" && o.paymentMethod.startsWith("Stripe");
+            const canCancel = !o.cancelled && o.statusIndex < 2;
+
             return (
-              <div key={o.id} className="rounded-3xl border border-black/5 bg-white p-5">
+              <div key={o.id} className={`rounded-3xl border border-black/5 bg-white p-5 ${o.cancelled ? "opacity-75" : ""}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-bold text-gray-900">Order #{o.code}</p>
@@ -70,18 +101,24 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        o.paymentStatus === "paid"
-                          ? "bg-green-50 text-green-700"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
-                    >
-                      {o.paymentStatus === "paid" ? "Paid" : needsPayment ? "Payment pending" : "Pay on delivery"}
-                    </span>
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badge[o.statusIndex]}`}>
-                      {ORDER_STEPS[o.statusIndex]}
-                    </span>
+                    {o.paymentStatus === "refunded" ? (
+                      <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">Refunded</span>
+                    ) : (
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          o.paymentStatus === "paid" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {o.paymentStatus === "paid" ? "Paid" : needsPayment ? "Payment pending" : "Pay on delivery"}
+                      </span>
+                    )}
+                    {o.cancelled ? (
+                      <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600">Cancelled</span>
+                    ) : (
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badge[o.statusIndex]}`}>
+                        {ORDER_STEPS[o.statusIndex]}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -105,18 +142,29 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
                         <CreditCard size={15} /> Pay now
                       </button>
                     )}
+                    {canCancel && (
+                      <button
+                        disabled={pending}
+                        onClick={() => cancel(o)}
+                        className="rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
+                      >
+                        Cancel order
+                      </button>
+                    )}
                     <a
                       href={`/api/receipt/${o.id}`}
                       className="flex items-center gap-1.5 rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary-light"
                     >
                       <Download size={15} /> Receipt
                     </a>
-                    <button
-                      onClick={() => setTracking(o.id)}
-                      className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
-                    >
-                      Track order
-                    </button>
+                    {!o.cancelled && (
+                      <button
+                        onClick={() => setTracking(o.id)}
+                        className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+                      >
+                        Track order
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

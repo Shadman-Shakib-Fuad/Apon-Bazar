@@ -54,6 +54,7 @@ export function toOrderView(o: OrderDoc): OrderView {
     history: (o.statusHistory ?? []).map((d) => new Date(d).toISOString()),
     paymentStatus: o.paymentStatus as OrderView["paymentStatus"],
     paymentMethod: o.paymentMethod ?? "Cash on Delivery",
+cancelled: o.cancelled ?? false,
     transactionId: o.transactionId ?? "",
     createdAt: o.createdAt.toISOString(),
   };
@@ -106,7 +107,11 @@ export async function getSellerDashboard(shopId: string) {
   start.setHours(0, 0, 0, 0);
   start.setDate(start.getDate() - 6);
 
-  const orders = await Order.find({ shopId, createdAt: { $gte: start } }).lean<OrderDoc[]>();
+  const orders = await Order.find({
+shopId,
+createdAt: { $gte: start },
+cancelled: { $ne: true },
+}).lean<OrderDoc[]>();
 
   const daily = Array.from({ length: 7 }, (_, i) => {
     const from = new Date(start);
@@ -199,11 +204,13 @@ export async function getAdminOverview() {
   const [users, shops, orders, salesAgg, byShop, reportAgg] = await Promise.all([
     User.countDocuments(),
     Shop.countDocuments(),
-    Order.countDocuments(),
+    Order.countDocuments({ cancelled: { $ne: true } }),
     Order.aggregate<{ _id: null; total: number }>([
+{ $match: { cancelled: { $ne: true } } },
       { $group: { _id: null, total: { $sum: "$total" } } },
     ]),
     Order.aggregate<{ _id: string; sales: number }>([
+{ $match: { cancelled: { $ne: true } } },
       { $group: { _id: "$shopName", sales: { $sum: "$total" } } },
       { $sort: { sales: -1 } },
       { $limit: 5 },
@@ -233,6 +240,7 @@ export async function getAdminShops(): Promise<AdminShopView[]> {
       { $group: { _id: "$shopId", count: { $sum: 1 } } },
     ]),
     Order.aggregate<{ _id: mongoose.Types.ObjectId; sales: number }>([
+{ $match: { cancelled: { $ne: true } } },
       { $group: { _id: "$shopId", sales: { $sum: "$total" } } },
     ]),
   ]);

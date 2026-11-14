@@ -29,7 +29,7 @@ export async function fulfillSession(session: Stripe.Checkout.Session) {
 
   await connectDB();
   await Order.updateOne(
-    { _id: orderId, paymentStatus: { $ne: "paid" } },
+    { _id: orderId, paymentStatus: { $ne: "paid" }, cancelled: { $ne: true } },
     {
       paymentStatus: "paid",
       paymentMethod: "Stripe (Card)",

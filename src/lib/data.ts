@@ -105,3 +105,53 @@ export async function getPriceHistory(productId: string) {
 
   return { points, ups, downs };
 }
+
+export type ProductSearch = {
+  category?: string;
+  q?: string;
+  shopId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  sort?: "price_asc" | "price_desc" | "newest";
+};
+
+export async function searchProducts(opts: ProductSearch = {}): Promise<ProductView[]> {
+  await connectDB();
+  const filter: Record<string, unknown> = {};
+
+  if (opts.category) filter.category = opts.category;
+  if (opts.q) filter.name = { $regex: escapeRegex(opts.q), $options: "i" };
+
+  if (opts.minPrice !== undefined || opts.maxPrice !== undefined) {
+    const range: Record<string, number> = {};
+    if (opts.minPrice !== undefined) range.$gte = opts.minPrice;
+    if (opts.maxPrice !== undefined) range.$lte = opts.maxPrice;
+    filter.price = range;
+  }
+
+  // Rating shop er, tai age bhalo rating er shop gulo khuje ber kori
+  if (opts.minRating) {
+    const good = await Shop.find({ rating: { $gte: opts.minRating } })
+      .select("_id")
+      .lean<{ _id: mongoose.Types.ObjectId }[]>();
+    filter.shopId = { $in: good.map((s) => s._id) };
+  }
+  if (opts.shopId) filter.shopId = opts.shopId;
+
+  const sorts: Record<string, Record<string, 1 | -1>> = {
+    price_asc: { price: 1 },
+    price_desc: { price: -1 },
+    newest: { _id: -1 },
+  };
+
+  const [products, shops] = await Promise.all([
+    Product.find(filter)
+      .select("-costPrice")
+      .sort(sorts[opts.sort ?? ""] ?? { _id: 1 })
+      .lean<ProductDoc[]>(),
+    shopMap(),
+  ]);
+
+  return products.map((p) => toProduct(p, shops));
+}

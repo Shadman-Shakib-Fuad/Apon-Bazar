@@ -42,7 +42,10 @@ export default function SellerOrdersList({ orders }: { orders: OrderView[] }) {
             <div className="text-right">
               <p className="text-lg font-extrabold text-gray-900">{formatPrice(o.total)}</p>
               <p className="text-xs text-gray-500">{new Date(o.createdAt).toLocaleString("en-GB")}</p>
-              <p className="text-xs text-gray-400">Payment: {o.paymentStatus}</p>
+              <p className="text-xs text-gray-400">
+                Payment: {o.paymentStatus}
+                {o.cancelled ? " · CANCELLED" : ""}
+              </p>
             </div>
           </div>
 
@@ -57,7 +60,7 @@ export default function SellerOrdersList({ orders }: { orders: OrderView[] }) {
               <label className="text-sm font-medium text-gray-700">Status:</label>
               <select
                 value={o.statusIndex}
-                disabled={pending}
+                disabled={pending || o.cancelled}
                 onChange={(e) => change(o.id, Number(e.target.value))}
                 className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary"
               >
