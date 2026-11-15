@@ -25,7 +25,8 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-xs text-white/60">
-        © 2026 Apon Bazar. CSE346 Project.
+        <p>© 2026 Apon Bazar. CSE346 Project.</p>
+        <p className="mt-1">Created By : Shadman Shakib Fuad</p>
       </div>
     </footer>
   );
