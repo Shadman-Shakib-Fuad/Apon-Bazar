@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!signature || !secret) {
-    return NextResponse.json({ message: "Webhook config nai" }, { status: 400 });
+    return NextResponse.json({ message: "Webhook is not configured" }, { status: 400 });
   }
 
   // Signature milanor jonno raw body lage, tai req.text()

@@ -9,7 +9,7 @@ let client: Stripe | null = null;
 export function getStripe() {
   if (!client) {
     const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) throw new Error("STRIPE_SECRET_KEY .env.local e nai");
+    if (!key) throw new Error("STRIPE_SECRET_KEY is missing in .env.local");
     client = new Stripe(key);
   }
   return client;

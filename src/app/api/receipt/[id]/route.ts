@@ -16,14 +16,14 @@ export async function GET(
 
   const { id } = await params;
   const order = await getOrderById(id);
-  if (!order) return NextResponse.json({ message: "Order paoa jayni" }, { status: 404 });
+  if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 });
 
   let allowed = user.role === "admin" || order.userId === user.id;
   if (!allowed && user.role === "seller") {
     const shop = await getSellerShop();
     allowed = !!shop && shop.id === order.shopId;
   }
-  if (!allowed) return NextResponse.json({ message: "Ei receipt dekhar permission nai" }, { status: 403 });
+  if (!allowed) return NextResponse.json({ message: "You do not have permission to view this receipt" }, { status: 403 });
 
   const buffer = await renderToBuffer(ReceiptDocument({ order }));
 
