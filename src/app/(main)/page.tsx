@@ -105,7 +105,7 @@ export default async function Home({
 
         {/* Categories + products */}
         <div id="products" className="mt-10 grid gap-8 lg:grid-cols-[230px_1fr]">
-          <aside className="hidden h-fit rounded-2xl border border-black/5 bg-white p-2 lg:block">
+          <aside className="hidden h-fit max-h-[75vh] overflow-y-auto rounded-2xl border border-black/5 bg-white p-2 lg:block">
             <Link
               href="/"
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
