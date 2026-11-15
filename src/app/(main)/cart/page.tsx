@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import ProductImage from "@/components/shop/ProductImage";
 import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
@@ -48,8 +49,8 @@ export default function CartPage() {
               <div className="mt-4 divide-y divide-gray-100">
                 {shopItems.map((item) => (
                   <div key={item.productId} className="flex items-center gap-3 py-3">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-3xl">
-                      {item.emoji}
+                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-primary-light text-3xl">
+                      <ProductImage url={item.imageUrl} emoji={item.emoji} alt={item.name} size={150} />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{item.name}</p>

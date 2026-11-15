@@ -15,9 +15,19 @@ import { categories } from "@/data/mock";
 
 type Result = { ok: true } | { ok: false; error: string };
 
+// Shudhu Cloudinary er link grohon korbo
+const imageUrlSchema = z
+  .string()
+  .max(500)
+  .refine(
+    (u) => u === "" || u.startsWith("https://res.cloudinary.com/"),
+    "Invalid image URL"
+  );
+
 const createSchema = z.object({
   name: z.string().trim().min(2).max(80),
   category: z.string(),
+  imageUrl: imageUrlSchema,
   unit: z.string().trim().min(1).max(30),
   price: z.number().min(1),
   costPrice: z.number().min(0),
@@ -56,6 +66,7 @@ export async function createProduct(input: unknown): Promise<Result> {
     category: d.category,
     unit: d.unit,
     emoji: categories.find((c) => c.name === d.category)?.emoji ?? "📦",
+    imageUrl: d.imageUrl,
     price: d.price,
     costPrice: d.costPrice,
     yesterdayPrice: d.price,
@@ -70,11 +81,16 @@ export async function createProduct(input: unknown): Promise<Result> {
 
 export async function updateProduct(
   id: string,
-  input: { price: number; costPrice: number; stock: number }
+  input: { price: number; costPrice: number; stock: number; imageUrl?: string }
 ): Promise<Result> {
   if (!mongoose.isValidObjectId(id)) return { ok: false, error: "Product not found." };
   const parsed = z
-    .object({ price: z.number().min(1), costPrice: z.number().min(0), stock: z.number().int().min(0) })
+    .object({
+      price: z.number().min(1),
+      costPrice: z.number().min(0),
+      stock: z.number().int().min(0),
+      imageUrl: imageUrlSchema.optional(),
+    })
     .safeParse(input);
   if (!parsed.success) return { ok: false, error: "Please enter a valid price, cost price and stock." };
 
@@ -109,6 +125,7 @@ export async function updateProduct(
   product.price = parsed.data.price;
   product.costPrice = parsed.data.costPrice;
   product.stock = parsed.data.stock;
+  if (parsed.data.imageUrl !== undefined) product.imageUrl = parsed.data.imageUrl;
   await product.save();
 
   revalidatePath("/", "layout");

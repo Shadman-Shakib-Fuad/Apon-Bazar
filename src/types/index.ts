@@ -16,6 +16,7 @@ export type ProductView = {
   shopName: string;
   shopEmoji: string;
   shopStatus: "active" | "restricted";
+  imageUrl: string;
   deliveryCharge: number;
   name: string;
   category: string;
@@ -75,6 +76,7 @@ export type SellerProductView = {
   unit: string;
   price: number;
   costPrice: number;
+  imageUrl: string;
   stock: number;
 };
 

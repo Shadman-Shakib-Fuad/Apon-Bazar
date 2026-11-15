@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Plus, TrendingUp, TrendingDown, Heart } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import ProductImage from "@/components/shop/ProductImage";
 import { useWishlist } from "@/components/wishlist/WishlistProvider";
 import type { ProductView } from "@/types";
 import { formatPrice, priceDiff } from "@/lib/utils";
@@ -18,8 +19,8 @@ export default function ProductCard({ product }: { product: ProductView }) {
   return (
     <div className="group relative rounded-2xl border border-black/5 bg-white p-3 shadow-sm transition hover:shadow-md">
       <Link href={`/products/${product.id}`}>
-        <div className="flex h-32 items-center justify-center rounded-xl bg-primary-light text-6xl">
-          {product.emoji}
+        <div className="flex h-32 items-center justify-center overflow-hidden rounded-xl bg-primary-light text-6xl">
+          <ProductImage url={product.imageUrl} emoji={product.emoji} alt={product.name} size={400} />
         </div>
       </Link>
 
@@ -78,6 +79,7 @@ export default function ProductCard({ product }: { product: ProductView }) {
               name: product.name,
               price: product.price,
               emoji: product.emoji,
+              imageUrl: product.imageUrl,
               unit: product.unit,
             })
           }

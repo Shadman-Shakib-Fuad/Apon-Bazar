@@ -37,6 +37,7 @@ export function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductVi
     yesterdayPrice: p.yesterdayPrice,
     unit: p.unit,
     emoji: p.emoji,
+    imageUrl: p.imageUrl ?? "",
     stock: p.stock,
   };
 }

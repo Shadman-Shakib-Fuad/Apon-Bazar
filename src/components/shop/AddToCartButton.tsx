@@ -20,6 +20,7 @@ export default function AddToCartButton({ product }: { product: ProductView }) {
       name: product.name,
       price: product.price,
       emoji: product.emoji,
+      imageUrl: product.imageUrl,
       unit: product.unit,
     });
     setAdded(true);

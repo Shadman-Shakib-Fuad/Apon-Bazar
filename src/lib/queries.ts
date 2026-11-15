@@ -21,7 +21,10 @@ import type {
 // Login add korar age seller hishebe ei shop ta dhore nichhi
 export const SELLER_SHOP_NAME = "Rahim Vegetable Store";
 
-export type OrderDoc = OrderType & { _id: mongoose.Types.ObjectId; createdAt: Date };
+export type OrderDoc = OrderType & {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+};
 
 export function orderCode(id: string) {
   return `AB${id.slice(-6).toUpperCase()}`;
@@ -54,7 +57,7 @@ export function toOrderView(o: OrderDoc): OrderView {
     history: (o.statusHistory ?? []).map((d) => new Date(d).toISOString()),
     paymentStatus: o.paymentStatus as OrderView["paymentStatus"],
     paymentMethod: o.paymentMethod ?? "Cash on Delivery",
-cancelled: o.cancelled ?? false,
+    cancelled: o.cancelled ?? false,
     transactionId: o.transactionId ?? "",
     createdAt: o.createdAt.toISOString(),
   };
@@ -79,13 +82,18 @@ export async function getSellerShop(): Promise<ShopView | null> {
   };
 }
 
-export async function getSellerProducts(shopId: string): Promise<SellerProductView[]> {
+export async function getSellerProducts(
+  shopId: string,
+): Promise<SellerProductView[]> {
   await connectDB();
-  const products = await Product.find({ shopId }).sort({ _id: -1 }).lean<ProductDoc[]>();
+  const products = await Product.find({ shopId })
+    .sort({ _id: -1 })
+    .lean<ProductDoc[]>();
   return products.map((p) => ({
     id: p._id.toString(),
     name: p.name,
     emoji: p.emoji,
+    imageUrl: p.imageUrl ?? "",
     category: p.category,
     unit: p.unit,
     price: p.price,
@@ -96,7 +104,9 @@ export async function getSellerProducts(shopId: string): Promise<SellerProductVi
 
 export async function getShopOrders(shopId: string): Promise<OrderView[]> {
   await connectDB();
-  const orders = await Order.find({ shopId }).sort({ createdAt: -1 }).lean<OrderDoc[]>();
+  const orders = await Order.find({ shopId })
+    .sort({ createdAt: -1 })
+    .lean<OrderDoc[]>();
   return orders.map(toOrderView);
 }
 
@@ -108,10 +118,10 @@ export async function getSellerDashboard(shopId: string) {
   start.setDate(start.getDate() - 6);
 
   const orders = await Order.find({
-shopId,
-createdAt: { $gte: start },
-cancelled: { $ne: true },
-}).lean<OrderDoc[]>();
+    shopId,
+    createdAt: { $gte: start },
+    cancelled: { $ne: true },
+  }).lean<OrderDoc[]>();
 
   const daily = Array.from({ length: 7 }, (_, i) => {
     const from = new Date(start);
@@ -127,7 +137,7 @@ cancelled: { $ne: true },
         o.items.forEach((it) => {
           revenue += it.price * it.qty;
           cost += (it.costPrice ?? 0) * it.qty;
-        })
+        }),
       );
 
     return {
@@ -138,16 +148,24 @@ cancelled: { $ne: true },
     };
   });
 
-  const totals = new Map<string, { name: string; sold: number; revenue: number; profit: number }>();
+  const totals = new Map<
+    string,
+    { name: string; sold: number; revenue: number; profit: number }
+  >();
   orders.forEach((o) =>
     o.items.forEach((it) => {
       const key = it.productId.toString();
-      const cur = totals.get(key) ?? { name: it.name, sold: 0, revenue: 0, profit: 0 };
+      const cur = totals.get(key) ?? {
+        name: it.name,
+        sold: 0,
+        revenue: 0,
+        profit: 0,
+      };
       cur.sold += it.qty;
       cur.revenue += it.price * it.qty;
       cur.profit += (it.price - (it.costPrice ?? 0)) * it.qty;
       totals.set(key, cur);
-    })
+    }),
   );
 
   const products = await Product.find({ shopId }).lean<ProductDoc[]>();
@@ -201,32 +219,37 @@ export async function getReviews(shopId: string): Promise<ReviewView[]> {
 // ---------------- Admin ----------------
 export async function getAdminOverview() {
   await connectDB();
-  const [users, shops, orders, salesAgg, byShop, reportAgg] = await Promise.all([
-    User.countDocuments(),
-    Shop.countDocuments(),
-    Order.countDocuments({ cancelled: { $ne: true } }),
-    Order.aggregate<{ _id: null; total: number }>([
-{ $match: { cancelled: { $ne: true } } },
-      { $group: { _id: null, total: { $sum: "$total" } } },
-    ]),
-    Order.aggregate<{ _id: string; sales: number }>([
-{ $match: { cancelled: { $ne: true } } },
-      { $group: { _id: "$shopName", sales: { $sum: "$total" } } },
-      { $sort: { sales: -1 } },
-      { $limit: 5 },
-    ]),
-    Report.aggregate<{ _id: string; count: number }>([
-      { $group: { _id: "$shopName", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-    ]),
-  ]);
+  const [users, shops, orders, salesAgg, byShop, reportAgg] = await Promise.all(
+    [
+      User.countDocuments(),
+      Shop.countDocuments(),
+      Order.countDocuments({ cancelled: { $ne: true } }),
+      Order.aggregate<{ _id: null; total: number }>([
+        { $match: { cancelled: { $ne: true } } },
+        { $group: { _id: null, total: { $sum: "$total" } } },
+      ]),
+      Order.aggregate<{ _id: string; sales: number }>([
+        { $match: { cancelled: { $ne: true } } },
+        { $group: { _id: "$shopName", sales: { $sum: "$total" } } },
+        { $sort: { sales: -1 } },
+        { $limit: 5 },
+      ]),
+      Report.aggregate<{ _id: string; count: number }>([
+        { $group: { _id: "$shopName", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+    ],
+  );
 
   return {
     users,
     shops,
     orders,
     sales: salesAgg[0]?.total ?? 0,
-    topShops: byShop.map((x) => ({ name: x._id.split(" ")[0], value: x.sales })),
+    topShops: byShop.map((x) => ({
+      name: x._id.split(" ")[0],
+      value: x.sales,
+    })),
     mostReported: reportAgg.map((x) => ({ name: x._id, count: x.count })),
   };
 }
@@ -240,7 +263,7 @@ export async function getAdminShops(): Promise<AdminShopView[]> {
       { $group: { _id: "$shopId", count: { $sum: 1 } } },
     ]),
     Order.aggregate<{ _id: mongoose.Types.ObjectId; sales: number }>([
-{ $match: { cancelled: { $ne: true } } },
+      { $match: { cancelled: { $ne: true } } },
       { $group: { _id: "$shopId", sales: { $sum: "$total" } } },
     ]),
   ]);
@@ -262,20 +285,18 @@ export async function getAdminShops(): Promise<AdminShopView[]> {
 
 export async function getAdminReports(): Promise<ReportView[]> {
   await connectDB();
-  const rows = await Report.find()
-    .sort({ createdAt: -1 })
-    .lean<
-      {
-        _id: mongoose.Types.ObjectId;
-        shopId: mongoose.Types.ObjectId;
-        shopName: string;
-        reporterName: string;
-        reason: string;
-        description?: string;
-        status: string;
-        createdAt: Date;
-      }[]
-    >();
+  const rows = await Report.find().sort({ createdAt: -1 }).lean<
+    {
+      _id: mongoose.Types.ObjectId;
+      shopId: mongoose.Types.ObjectId;
+      shopName: string;
+      reporterName: string;
+      reason: string;
+      description?: string;
+      status: string;
+      createdAt: Date;
+    }[]
+  >();
   return rows.map((r) => ({
     id: r._id.toString(),
     shopId: r.shopId.toString(),
@@ -293,7 +314,9 @@ export async function getAdminLogs(): Promise<AdminLogView[]> {
   const rows = await AdminLog.find()
     .sort({ createdAt: -1 })
     .limit(20)
-    .lean<{ _id: mongoose.Types.ObjectId; message: string; createdAt: Date }[]>();
+    .lean<
+      { _id: mongoose.Types.ObjectId; message: string; createdAt: Date }[]
+    >();
   return rows.map((r) => ({
     id: r._id.toString(),
     message: r.message,
@@ -311,6 +334,8 @@ export async function getOrderById(id: string): Promise<OrderView | null> {
 export async function getUserOrders(userId: string): Promise<OrderView[]> {
   if (!mongoose.isValidObjectId(userId)) return [];
   await connectDB();
-  const orders = await Order.find({ userId }).sort({ createdAt: -1 }).lean<OrderDoc[]>();
+  const orders = await Order.find({ userId })
+    .sort({ createdAt: -1 })
+    .lean<OrderDoc[]>();
   return orders.map(toOrderView);
 }

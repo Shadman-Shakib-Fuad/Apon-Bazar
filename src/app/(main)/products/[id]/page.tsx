@@ -5,6 +5,7 @@ import { getProduct, getProducts, getPriceHistory } from "@/lib/data";
 import { formatPrice, priceDiff } from "@/lib/utils";
 import PriceHistoryChart from "@/components/shop/PriceHistoryChart";
 import AddToCartButton from "@/components/shop/AddToCartButton";
+import ProductImage from "@/components/shop/ProductImage";
 import ProductCard from "@/components/shop/ProductCard";
 export const dynamic = "force-dynamic";
 import WishlistButton from "@/components/wishlist/WishlistButton";
@@ -28,8 +29,8 @@ export default async function ProductPage({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="flex h-72 items-center justify-center rounded-3xl bg-primary-light text-9xl md:h-96">
-          {product.emoji}
+        <div className="flex h-72 items-center justify-center overflow-hidden rounded-3xl bg-primary-light text-9xl md:h-96">
+          <ProductImage url={product.imageUrl} emoji={product.emoji} alt={product.name} size={900} />
         </div>
 
         <div>

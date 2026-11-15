@@ -3,17 +3,27 @@
 import { useState, useTransition, FormEvent } from "react";
 import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
 import { createProduct, updateProduct, deleteProduct } from "@/app/seller/actions";
+import ImageUpload from "@/components/dashboard/ImageUpload";
+import ProductImage from "@/components/shop/ProductImage";
 import { categories } from "@/data/mock";
 import { formatPrice } from "@/lib/utils";
 import type { SellerProductView } from "@/types";
 
-const empty = { name: "", category: "Vegetables", unit: "per kg", price: "", costPrice: "", stock: "" };
+const empty = {
+  name: "",
+  category: "Vegetables",
+  unit: "per kg",
+  price: "",
+  costPrice: "",
+  stock: "",
+  imageUrl: "",
+};
 
 export default function SellerProductManager({ products }: { products: SellerProductView[] }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(empty);
   const [editId, setEditId] = useState<string | null>(null);
-  const [draft, setDraft] = useState({ price: "", costPrice: "", stock: "" });
+  const [draft, setDraft] = useState({ price: "", costPrice: "", stock: "", imageUrl: "" });
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
@@ -37,6 +47,7 @@ export default function SellerProductManager({ products }: { products: SellerPro
           price: Number(form.price),
           costPrice: Number(form.costPrice),
           stock: Number(form.stock),
+          imageUrl: form.imageUrl,
         }),
       () => {
         setForm(empty);
@@ -47,7 +58,12 @@ export default function SellerProductManager({ products }: { products: SellerPro
 
   function startEdit(p: SellerProductView) {
     setEditId(p.id);
-    setDraft({ price: String(p.price), costPrice: String(p.costPrice), stock: String(p.stock) });
+    setDraft({
+      price: String(p.price),
+      costPrice: String(p.costPrice),
+      stock: String(p.stock),
+      imageUrl: p.imageUrl ?? "",
+    });
   }
 
   const input = "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-primary";
@@ -72,6 +88,9 @@ export default function SellerProductManager({ products }: { products: SellerPro
 
       {showForm && (
         <form onSubmit={addProduct} className="mt-6 grid gap-3 rounded-3xl border border-black/5 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="sm:col-span-2 lg:col-span-3">
+            <ImageUpload value={form.imageUrl} onChange={(url) => setForm({ ...form, imageUrl: url })} />
+          </div>
           <input required placeholder="Product name" className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <select className={input} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
             {categories.map((c) => (
@@ -106,9 +125,24 @@ export default function SellerProductManager({ products }: { products: SellerPro
               const profit = p.price - p.costPrice;
               return (
                 <tr key={p.id}>
-                  <td className="px-5 py-3 font-medium text-gray-900">
-                    {p.emoji} {p.name}
-                    <span className="block text-xs font-normal text-gray-500">{p.category} · {p.unit}</span>
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-3">
+                      {editing ? (
+                        <ImageUpload
+                          compact
+                          value={draft.imageUrl}
+                          onChange={(url) => setDraft({ ...draft, imageUrl: url })}
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary-light text-2xl">
+                          <ProductImage url={p.imageUrl} emoji={p.emoji} alt={p.name} size={120} />
+                        </div>
+                      )}
+                      <div className="font-medium text-gray-900">
+                        {p.name}
+                        <span className="block text-xs font-normal text-gray-500">{p.category} · {p.unit}</span>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-5 py-3">
                     {editing ? <input className={small} value={draft.price} onChange={(e) => setDraft({ ...draft, price: e.target.value })} /> : formatPrice(p.price)}
@@ -143,6 +177,7 @@ export default function SellerProductManager({ products }: { products: SellerPro
                                     price: Number(draft.price),
                                     costPrice: Number(draft.costPrice),
                                     stock: Number(draft.stock),
+                                    imageUrl: draft.imageUrl,
                                   }),
                                 () => setEditId(null)
                               )
