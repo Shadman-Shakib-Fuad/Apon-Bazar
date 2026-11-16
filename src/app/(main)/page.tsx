@@ -1,4 +1,4 @@
-import Image from "next/image";
+import HeroSlider from "@/components/shop/HeroSlider";
 import Link from "next/link";
 import { Star, MapPin } from "lucide-react";
 import ProductCard from "@/components/shop/ProductCard";
@@ -49,13 +49,8 @@ export default async function Home({
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-primary-dark">
-        <Image
-          src="/HeaderImage.png"
-          alt="Apon Bazar"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
+        <HeroSlider
+          images={["/HeaderImage.png", "/HeaderImage2.png", "/HeaderImage3.png"]}
         />
         <div className="absolute inset-0 bg-black/40" />
 
