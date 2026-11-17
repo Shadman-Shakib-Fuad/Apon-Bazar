@@ -1,10 +1,12 @@
-import HeroSlider from "@/components/shop/HeroSlider";
 import Link from "next/link";
 import { Star, MapPin } from "lucide-react";
+import HeroSlider from "@/components/shop/HeroSlider";
 import ProductCard from "@/components/shop/ProductCard";
 import FilterBar from "@/components/shop/FilterBar";
-import { categories } from "@/data/mock";
 import { searchProducts, getShops } from "@/lib/data";
+
+// Ek page e koyta product dekhabe: 6 row x 4 product = 24
+const PAGE_SIZE = 24;
 
 type Sort = "price_asc" | "price_desc" | "newest";
 
@@ -24,6 +26,7 @@ export default async function Home({
     max?: string;
     rating?: string;
     sort?: string;
+    page?: string;
   }>;
 }) {
   const sp = await searchParams;
@@ -33,7 +36,7 @@ export default async function Home({
     ? sp.sort
     : undefined) as Sort | undefined;
 
-  const [filtered, shops] = await Promise.all([
+  const [all, shops] = await Promise.all([
     searchProducts({
       category,
       q,
@@ -44,6 +47,29 @@ export default async function Home({
     }),
     getShops(),
   ]);
+
+  // Pagination
+  const total = all.length;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(Math.max(Math.floor(num(sp.page) ?? 1), 1), pages);
+  const start = (page - 1) * PAGE_SIZE;
+  const products = all.slice(start, start + PAGE_SIZE);
+
+  // Filter gulo thikiye rekhe onno page e jawar link
+  function pageHref(p: number) {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(sp)) {
+      if (v && k !== "page") params.set(k, v);
+    }
+    if (p > 1) params.set("page", String(p));
+    const qs = params.toString();
+    return qs ? `/?${qs}#products` : "/#products";
+  }
+
+  const pageBtn =
+    "rounded-full border border-gray-200 bg-white px-5 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50";
+  const pageBtnOff =
+    "rounded-full border border-gray-100 bg-gray-50 px-5 py-2 text-sm font-semibold text-gray-300";
 
   return (
     <div>
@@ -58,7 +84,7 @@ export default async function Home({
           <h1 className="text-3xl font-extrabold text-white md:text-5xl">
             Fresh from your local shops
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-white/90 md:text-base">
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-white/90 md:text-base">
             Fresh products from local shops in your neighborhood, delivered to your door.
           </p>
           <form
@@ -98,69 +124,69 @@ export default async function Home({
           </div>
         </div>
 
-        {/* Categories + products */}
-        <div id="products" className="mt-10 grid gap-8 lg:grid-cols-[230px_1fr]">
-          <aside className="hidden h-fit max-h-[75vh] overflow-y-auto rounded-2xl border border-black/5 bg-white p-2 lg:block">
-            <Link
-              href="/"
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
-                !category ? "bg-primary-light text-primary-dark" : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <span className="text-lg">🧺</span> All Products
-            </Link>
-            {categories.map((c) => (
-              <Link
-                key={c.name}
-                href={`/?category=${c.name}`}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${
-                  category === c.name
-                    ? "bg-primary-light text-primary-dark"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <span className="text-lg">{c.emoji}</span> {c.name}
-              </Link>
-            ))}
-          </aside>
+        {/* Products (majhkhane, dui dike soman jayga) */}
+        <section id="products" className="mt-10">
+          <FilterBar
+            values={{
+              q,
+              category,
+              min: sp.min,
+              max: sp.max,
+              rating: sp.rating,
+              sort: sp.sort,
+            }}
+          />
 
-          <section>
-            <FilterBar
-              values={{
-                q,
-                category,
-                min: sp.min,
-                max: sp.max,
-                rating: sp.rating,
-                sort: sp.sort,
-              }}
-            />
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">
+              {category ?? "All Products"}
+              {q && (
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  for &quot;{q}&quot;
+                </span>
+              )}
+            </h2>
+            <span className="text-sm text-gray-500">
+              {total === 0
+                ? "0 items"
+                : `${start + 1}-${start + products.length} of ${total} items`}
+            </span>
+          </div>
 
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">
-                {category ?? "All Products"}
-                {q && (
-                  <span className="ml-2 text-sm font-normal text-gray-500">
-                    for &quot;{q}&quot;
-                  </span>
-                )}
-              </h2>
-              <span className="text-sm text-gray-500">{filtered.length} items</span>
+          {products.length === 0 ? (
+            <div className="rounded-2xl bg-white p-10 text-center text-gray-500">
+              No products found 😕 Try fewer filters.
             </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          )}
 
-            {filtered.length === 0 ? (
-              <div className="rounded-2xl bg-white p-10 text-center text-gray-500">
-                No products found 😕 Try fewer filters.
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {filtered.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
+          {pages > 1 && (
+            <nav className="mt-8 flex items-center justify-center gap-3">
+              {page > 1 ? (
+                <Link href={pageHref(page - 1)} className={pageBtn}>
+                  ← Previous
+                </Link>
+              ) : (
+                <span className={pageBtnOff}>← Previous</span>
+              )}
+              <span className="text-sm text-gray-600">
+                Page {page} of {pages}
+              </span>
+              {page < pages ? (
+                <Link href={pageHref(page + 1)} className={pageBtn}>
+                  Next →
+                </Link>
+              ) : (
+                <span className={pageBtnOff}>Next →</span>
+              )}
+            </nav>
+          )}
+        </section>
 
         {/* Popular shops */}
         <section className="mt-14">

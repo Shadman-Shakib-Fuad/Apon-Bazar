@@ -1,23 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, TrendingUp, TrendingDown, Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ShoppingCart, TrendingUp, TrendingDown, Heart } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
-import ProductImage from "@/components/shop/ProductImage";
 import { useWishlist } from "@/components/wishlist/WishlistProvider";
+import ProductImage from "@/components/shop/ProductImage";
 import type { ProductView } from "@/types";
 import { formatPrice, priceDiff } from "@/lib/utils";
 
 export default function ProductCard({ product }: { product: ProductView }) {
+  const router = useRouter();
   const { addItem } = useCart();
   const { ids, toggle } = useWishlist();
+
   const wished = ids.includes(product.id);
   const diff = priceDiff(product.price, product.yesterdayPrice);
   const restricted = product.shopStatus === "restricted";
   const out = product.stock === 0;
+  const unavailable = restricted || out;
+
+  const cartItem = {
+    productId: product.id,
+    shopId: product.shopId,
+    shopName: product.shopName,
+    shopEmoji: product.shopEmoji,
+    deliveryCharge: product.deliveryCharge,
+    name: product.name,
+    price: product.price,
+    emoji: product.emoji,
+    imageUrl: product.imageUrl,
+    unit: product.unit,
+  };
+
+  // Cart e rakhe, shorashori oi shop er checkout e niye jay
+  function buyNow() {
+    addItem(cartItem);
+    router.push(`/checkout?shop=${product.shopId}`);
+  }
 
   return (
-    <div className="group relative rounded-2xl border border-black/5 bg-white p-3 shadow-sm transition hover:shadow-md">
+    <div className="relative flex flex-col rounded-2xl border border-black/5 bg-white p-3 shadow-sm transition hover:shadow-md">
       <Link href={`/products/${product.id}`}>
         <div className="flex h-32 items-center justify-center overflow-hidden rounded-xl bg-primary-light text-6xl">
           <ProductImage url={product.imageUrl} emoji={product.emoji} alt={product.name} size={400} />
@@ -32,7 +55,13 @@ export default function ProductCard({ product }: { product: ProductView }) {
         <Heart size={16} className={wished ? "fill-red-500 text-red-500" : "text-gray-500"} />
       </button>
 
-      <div className="mt-3">
+      {unavailable && (
+        <span className="absolute right-5 top-5 rounded-full bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-white">
+          {restricted ? "Shop restricted" : "Out of stock"}
+        </span>
+      )}
+
+      <div className="mt-3 flex-1">
         <p className="text-base font-bold text-gray-900">
           {formatPrice(product.price)}
           <span className="ml-1 text-xs font-normal text-gray-500">{product.unit}</span>
@@ -63,32 +92,23 @@ export default function ProductCard({ product }: { product: ProductView }) {
         </div>
       </div>
 
-      {restricted || out ? (
-        <span className="absolute right-5 top-5 rounded-full bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-white">
-          {restricted ? "Shop restricted" : "Out of stock"}
-        </span>
-      ) : (
+      <div className="mt-3 flex items-center gap-2">
         <button
-          onClick={() =>
-            addItem({
-              productId: product.id,
-              shopId: product.shopId,
-              shopName: product.shopName,
-              shopEmoji: product.shopEmoji,
-              deliveryCharge: product.deliveryCharge,
-              name: product.name,
-              price: product.price,
-              emoji: product.emoji,
-              imageUrl: product.imageUrl,
-              unit: product.unit,
-            })
-          }
-          className="absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow transition hover:bg-primary-dark active:scale-90"
-          aria-label="Add to cart"
+          onClick={buyNow}
+          disabled={unavailable}
+          className="flex-1 rounded-full bg-accent py-2 text-sm font-semibold text-white transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
-          <Plus size={18} />
+          Buy now
         </button>
-      )}
+        <button
+          onClick={() => addItem(cartItem)}
+          disabled={unavailable}
+          aria-label="Add to cart"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark active:scale-90 disabled:cursor-not-allowed disabled:bg-gray-300"
+        >
+          <ShoppingCart size={16} />
+        </button>
+      </div>
     </div>
   );
 }
