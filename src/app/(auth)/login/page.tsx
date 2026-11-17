@@ -43,6 +43,11 @@ export default function LoginPage() {
         <form action={formAction} className="space-y-3">
           <input name="email" type="email" required placeholder="Email" className={input} />
           <input name="password" type="password" required placeholder="Password" className={input} />
+          <div className="text-right">
+            <Link href="/forgot-password" className="text-xs font-semibold text-primary hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
           <button
             disabled={pending}
