@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { Star, MapPin, Truck, AlertTriangle } from "lucide-react";
 import ProductCard from "@/components/shop/ProductCard";
-import ReviewSection from "@/components/shop/ReviewSection";
+import ReviewList from "@/components/shop/ReviewList";
 import ReportButton from "@/components/shop/ReportButton";
 import { getShop, getProducts } from "@/lib/data";
-import { getReviews } from "@/lib/queries";
+import { getShopReviews } from "@/lib/engage";
 import { formatPrice } from "@/lib/utils";
 import { getCurrentUser } from "@/lib/session";
 
@@ -22,7 +22,7 @@ export default async function ShopPage({
 
   const [shopProducts, reviews] = await Promise.all([
     getProducts({ shopId: shop.id }),
-    getReviews(shop.id),
+    getShopReviews(shop.id),
   ]);
 
   return (
@@ -64,7 +64,7 @@ export default async function ShopPage({
         ))}
       </div>
 
-      <ReviewSection shopId={shop.id} reviews={reviews} loggedIn={!!user} />
+      <ReviewList reviews={reviews} title="Customer reviews" />
     </div>
   );
 }

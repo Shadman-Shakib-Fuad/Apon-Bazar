@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TrendingUp, TrendingDown, Store } from "lucide-react";
+import { TrendingUp, TrendingDown, Store, Star } from "lucide-react";
 import { getProduct, getProducts, getPriceHistory } from "@/lib/data";
 import { formatPrice, priceDiff } from "@/lib/utils";
 import PriceHistoryChart from "@/components/shop/PriceHistoryChart";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import ProductImage from "@/components/shop/ProductImage";
+import ReviewList from "@/components/shop/ReviewList";
+import { getProductReviews } from "@/lib/engage";
 import ProductCard from "@/components/shop/ProductCard";
 export const dynamic = "force-dynamic";
 import WishlistButton from "@/components/wishlist/WishlistButton";
@@ -25,6 +27,7 @@ export default async function ProductPage({
     getProducts({ category: product.category }),
   ]);
   const related = sameCategory.filter((p) => p.id !== product.id).slice(0, 4);
+  const reviewData = await getProductReviews(product.id);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -36,6 +39,16 @@ export default async function ProductPage({
         <div>
           <p className="text-sm font-medium text-primary">{product.category}</p>
           <h1 className="mt-1 text-3xl font-extrabold text-gray-900">{product.name}</h1>
+          <p className="mt-1 flex items-center gap-1 text-sm text-gray-600">
+            <Star size={16} className="fill-accent text-accent" />
+            {reviewData.count > 0 ? (
+              <>
+                <b>{reviewData.average}</b> ({reviewData.count} reviews)
+              </>
+            ) : (
+              "No reviews yet"
+            )}
+          </p>
 
           <Link
             href={`/shops/${product.shopId}`}
@@ -98,6 +111,8 @@ export default async function ProductPage({
         </div>
         <PriceHistoryChart data={points} />
       </section>
+
+      <ReviewList reviews={reviewData.reviews} title="Customer reviews" />
 
       {related.length > 0 && (
         <section className="mt-10">

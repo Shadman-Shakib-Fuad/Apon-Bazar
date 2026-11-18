@@ -29,6 +29,8 @@ export function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductVi
     shopId: p.shopId.toString(),
     shopName: shop?.name ?? "",
     shopEmoji: shop?.emoji ?? "🏪",
+    shopRating: shop?.rating ?? 0,
+    shopReviewCount: shop?.reviewCount ?? 0,
     shopStatus: (shop?.status ?? "active") as ProductView["shopStatus"],
     deliveryCharge: shop?.deliveryCharge ?? 0,
     name: p.name,

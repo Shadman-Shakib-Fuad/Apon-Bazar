@@ -16,6 +16,8 @@ export type ProductView = {
   shopName: string;
   shopEmoji: string;
   shopStatus: "active" | "restricted";
+  shopRating: number;
+  shopReviewCount: number;
   imageUrl: string;
   deliveryCharge: number;
   name: string;
@@ -62,6 +64,7 @@ export type OrderView = {
 export type ReviewView = {
   id: string;
   reviewerName: string;
+  productName?: string;
   rating: number;
   comment: string;
   createdAt: string;

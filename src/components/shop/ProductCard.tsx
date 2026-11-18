@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, TrendingUp, TrendingDown, Heart } from "lucide-react";
+import { ShoppingCart, TrendingUp, TrendingDown, Heart, Star } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { useWishlist } from "@/components/wishlist/WishlistProvider";
 import ProductImage from "@/components/shop/ProductImage";
@@ -73,7 +73,19 @@ export default function ProductCard({ product }: { product: ProductView }) {
         >
           {product.name}
         </Link>
-        <p className="truncate text-xs text-gray-500">{product.shopName}</p>
+        <p className="flex items-center gap-1.5 text-xs text-gray-500">
+          <span className="truncate">{product.shopName}</span>
+          {product.shopReviewCount > 0 ? (
+            <span className="flex shrink-0 items-center gap-0.5 font-semibold text-gray-700">
+              <Star size={12} className="fill-accent text-accent" />
+              {product.shopRating}
+            </span>
+          ) : (
+            <span className="shrink-0 rounded-full bg-primary-light px-1.5 py-0.5 text-[10px] font-semibold text-primary-dark">
+              New
+            </span>
+          )}
+        </p>
 
         <div className="mt-2 flex items-center gap-1 text-xs">
           {diff > 0 && (

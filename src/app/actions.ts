@@ -138,42 +138,42 @@ export async function placeOrder(
   return { ok: true, id: order._id.toString() };
 }
 
-const reviewSchema = z.object({
-  shopId: z.string(),
-  rating: z.number().int().min(1).max(5),
-  comment: z.string().trim().max(500),
-});
+// const reviewSchema = z.object({
+//   shopId: z.string(),
+//   rating: z.number().int().min(1).max(5),
+//   comment: z.string().trim().max(500),
+// });
 
-export async function submitReview(input: unknown): Promise<Result> {
-  const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Please log in to write a review." };
+// export async function submitReview(input: unknown): Promise<Result> {
+//   const user = await getCurrentUser();
+//   if (!user) return { ok: false, error: "Please log in to write a review." };
 
-  const parsed = reviewSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Please choose a valid rating." };
-  const d = parsed.data;
-  if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop not found." };
+//   const parsed = reviewSchema.safeParse(input);
+//   if (!parsed.success) return { ok: false, error: "Please choose a valid rating." };
+//   const d = parsed.data;
+//   if (!mongoose.isValidObjectId(d.shopId)) return { ok: false, error: "Shop not found." };
 
-  await connectDB();
-  const shop = await Shop.findById(d.shopId).lean<ShopDoc>();
-  if (!shop) return { ok: false, error: "Shop not found." };
-  if (shop.ownerId?.toString() === user.id) {
-    return { ok: false, error: "You cannot review your own shop." };
-  }
+//   await connectDB();
+//   const shop = await Shop.findById(d.shopId).lean<ShopDoc>();
+//   if (!shop) return { ok: false, error: "Shop not found." };
+//   if (shop.ownerId?.toString() === user.id) {
+//     return { ok: false, error: "You cannot review your own shop." };
+//   }
 
-  await Review.create({
-    shopId: shop._id,
-    reviewerName: user.name ?? "Customer",
-    rating: d.rating,
-    comment: d.comment,
-  });
+//   await Review.create({
+//     shopId: shop._id,
+//     reviewerName: user.name ?? "Customer",
+//     rating: d.rating,
+//     comment: d.comment,
+//   });
 
-  const count = shop.reviewCount;
-  const rating = Math.round(((shop.rating * count + d.rating) / (count + 1)) * 10) / 10;
-  await Shop.updateOne({ _id: shop._id }, { rating, reviewCount: count + 1 });
+//   const count = shop.reviewCount;
+//   const rating = Math.round(((shop.rating * count + d.rating) / (count + 1)) * 10) / 10;
+//   await Shop.updateOne({ _id: shop._id }, { rating, reviewCount: count + 1 });
 
-  revalidatePath("/", "layout");
-  return { ok: true };
-}
+//   revalidatePath("/", "layout");
+//   return { ok: true };
+// }
 
 const reportSchema = z.object({
   shopId: z.string(),

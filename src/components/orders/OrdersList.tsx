@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ClipboardList, RefreshCw, Download, CreditCard } from "lucide-react";
 import OrderTimeline from "@/components/orders/OrderTimeline";
+import ReviewModal from "@/components/orders/ReviewModal";
 import { createCheckoutSession } from "@/app/payment-actions";
 import { cancelOrder } from "@/app/order-actions";
 import { ORDER_STEPS } from "@/lib/orders";
@@ -19,9 +20,20 @@ const badge = [
   "bg-green-50 text-green-700",
 ];
 
-export default function OrdersList({ orders }: { orders: OrderView[] }) {
+export default function OrdersList({
+  orders,
+  reviewed = {},
+}: {
+  orders: OrderView[];
+  reviewed?: Record<string, string[]>;
+}) {
   const router = useRouter();
   const [tracking, setTracking] = useState<string | null>(null);
+  const [reviewing, setReviewing] = useState<{
+    orderId: string;
+    productId: string;
+    name: string;
+  } | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const trackedOrder = orders.find((o) => o.id === tracking);
@@ -130,6 +142,34 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
                   ))}
                 </div>
 
+                {o.statusIndex === 4 && !o.cancelled && (
+                  <div className="mt-3 space-y-2 rounded-2xl bg-cream p-3">
+                    <p className="text-xs font-semibold text-gray-500">How were your products?</p>
+                    {o.items.map((i) => {
+                      const done = (reviewed[o.id] ?? []).includes(i.productId);
+                      return (
+                        <div key={i.productId} className="flex items-center justify-between gap-3 text-sm">
+                          <span className="truncate text-gray-700">
+                            {i.emoji} {i.name}
+                          </span>
+                          {done ? (
+                            <span className="shrink-0 text-xs font-semibold text-green-700">Reviewed ✓</span>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                setReviewing({ orderId: o.id, productId: i.productId, name: i.name })
+                              }
+                              className="shrink-0 rounded-full border border-primary px-3 py-1 text-xs font-semibold text-primary hover:bg-primary-light"
+                            >
+                              Write a review
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
                   <p className="font-bold text-gray-900">Total: {formatPrice(o.total)}</p>
                   <div className="flex flex-wrap gap-2">
@@ -174,6 +214,15 @@ export default function OrdersList({ orders }: { orders: OrderView[] }) {
       )}
 
       {trackedOrder && <OrderTimeline order={trackedOrder} onClose={() => setTracking(null)} />}
+
+      {reviewing && (
+        <ReviewModal
+          orderId={reviewing.orderId}
+          productId={reviewing.productId}
+          productName={reviewing.name}
+          onClose={() => setReviewing(null)}
+        />
+      )}
     </div>
   );
 }
