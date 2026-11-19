@@ -54,7 +54,7 @@ export function toOrderView(o: OrderDoc): OrderView {
     phone: o.phone,
     address: o.address,
     statusIndex: o.statusIndex,
-    history: (o.statusHistory ?? []).map((d) => new Date(d).toISOString()),
+    history: ((o.statusHistory ?? []) as unknown as Date[]).map((d) => new Date(d).toISOString()),
     paymentStatus: o.paymentStatus as OrderView["paymentStatus"],
     paymentMethod: o.paymentMethod ?? "Cash on Delivery",
     cancelled: o.cancelled ?? false,

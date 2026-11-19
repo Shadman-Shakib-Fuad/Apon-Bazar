@@ -42,7 +42,7 @@ function todayRange() {
   return { from, to };
 }
 
-async function savePriceToday(productId: unknown, price: number) {
+async function savePriceToday(productId: mongoose.Types.ObjectId, price: number) {
   const { from, to } = todayRange();
   await PriceHistory.findOneAndUpdate(
     { productId, date: { $gte: from, $lt: to } },
@@ -162,11 +162,11 @@ export async function updateOrderStatus(orderId: string, statusIndex: number): P
 
   const changed = statusIndex !== order.statusIndex;
 
-  const history = [...order.statusHistory];
+  const history: Date[] = [...(order.statusHistory as unknown as Date[])];
   while (history.length <= statusIndex) history.push(new Date());
 
   order.statusIndex = statusIndex;
-  order.statusHistory = history;
+  order.statusHistory = history as unknown as typeof order.statusHistory;
   // Shudhu Cash on Delivery order delivered hole "paid" hobe, Stripe order er payment Stripe theke ashe
   if (
     statusIndex === 4 &&
