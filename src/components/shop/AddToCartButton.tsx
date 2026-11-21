@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { ShoppingCart, Check } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import type { ProductView } from "@/types";
 
 export default function AddToCartButton({ product }: { product: ProductView }) {
   const { addItem } = useCart();
+  const toast = useToast();
   const [added, setAdded] = useState(false);
   const unavailable = product.stock === 0 || product.shopStatus === "restricted";
 
@@ -24,6 +26,12 @@ export default function AddToCartButton({ product }: { product: ProductView }) {
       unit: product.unit,
     });
     setAdded(true);
+    toast({
+      title: "Added to cart",
+      message: product.name,
+      href: "/cart",
+      hrefLabel: "View cart",
+    });
     setTimeout(() => setAdded(false), 1500);
   }
 

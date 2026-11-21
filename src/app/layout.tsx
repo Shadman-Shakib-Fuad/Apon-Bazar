@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/cart/CartProvider";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -14,7 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen antialiased">
-        <CartProvider>{children}</CartProvider>
+        <CartProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </CartProvider>
       </body>
     </html>
   );

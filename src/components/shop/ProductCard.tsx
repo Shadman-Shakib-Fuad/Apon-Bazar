@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart, TrendingUp, TrendingDown, Heart, Star } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { useWishlist } from "@/components/wishlist/WishlistProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import ProductImage from "@/components/shop/ProductImage";
 import type { ProductView } from "@/types";
 import { formatPrice, priceDiff } from "@/lib/utils";
@@ -13,6 +14,7 @@ export default function ProductCard({ product }: { product: ProductView }) {
   const router = useRouter();
   const { addItem } = useCart();
   const { ids, toggle } = useWishlist();
+  const toast = useToast();
 
   const wished = ids.includes(product.id);
   const diff = priceDiff(product.price, product.yesterdayPrice);
@@ -34,6 +36,16 @@ export default function ProductCard({ product }: { product: ProductView }) {
   };
 
   // Cart e rakhe, shorashori oi shop er checkout e niye jay
+  function addToCart() {
+    addItem(cartItem);
+    toast({
+      title: "Added to cart",
+      message: product.name,
+      href: "/cart",
+      hrefLabel: "View cart",
+    });
+  }
+
   function buyNow() {
     addItem(cartItem);
     router.push(`/checkout?shop=${product.shopId}`);
@@ -113,7 +125,7 @@ export default function ProductCard({ product }: { product: ProductView }) {
           Buy now
         </button>
         <button
-          onClick={() => addItem(cartItem)}
+          onClick={addToCart}
           disabled={unavailable}
           aria-label="Add to cart"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark active:scale-90 disabled:cursor-not-allowed disabled:bg-gray-300"
