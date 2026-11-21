@@ -10,6 +10,24 @@ const PAGE_SIZE = 24;
 
 type Sort = "price_asc" | "price_desc" | "newest";
 
+// Seed diye shuffle: ekoi seed dile ekoi order, notun seed dile notun order
+function shuffle<T>(items: T[], seed: number) {
+  const arr = [...items];
+  let a = seed >>> 0;
+  const rand = () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function num(v?: string) {
   if (!v) return undefined;
   const n = Number(v);
@@ -27,6 +45,7 @@ export default async function Home({
     rating?: string;
     sort?: string;
     page?: string;
+    seed?: string;
   }>;
 }) {
   const sp = await searchParams;
@@ -49,11 +68,15 @@ export default async function Home({
   ]);
 
   // Pagination
-  const total = all.length;
+  // Sort chhara thakle prottek bar notun random order
+  const seed = Number(sp.seed) || Math.floor(Math.random() * 1_000_000_000);
+  const ordered = sort ? all : shuffle(all, seed);
+
+  const total = ordered.length;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(Math.max(Math.floor(num(sp.page) ?? 1), 1), pages);
   const start = (page - 1) * PAGE_SIZE;
-  const products = all.slice(start, start + PAGE_SIZE);
+  const products = ordered.slice(start, start + PAGE_SIZE);
 
   // Filter gulo thikiye rekhe onno page e jawar link
   function pageHref(p: number) {
@@ -61,6 +84,7 @@ export default async function Home({
     for (const [k, v] of Object.entries(sp)) {
       if (v && k !== "page") params.set(k, v);
     }
+    if (!sort) params.set("seed", String(seed));
     if (p > 1) params.set("page", String(p));
     const qs = params.toString();
     return qs ? `/?${qs}#products` : "/#products";

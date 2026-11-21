@@ -42,7 +42,7 @@ export default function ProductCard({ product }: { product: ProductView }) {
   return (
     <div className="relative flex flex-col rounded-2xl border border-black/5 bg-white p-3 shadow-sm transition hover:shadow-md">
       <Link href={`/products/${product.id}`}>
-        <div className="flex h-32 items-center justify-center overflow-hidden rounded-xl bg-primary-light text-6xl">
+        <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-primary-light text-7xl">
           <ProductImage url={product.imageUrl} emoji={product.emoji} alt={product.name} size={400} />
         </div>
       </Link>

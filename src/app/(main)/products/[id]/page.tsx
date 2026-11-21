@@ -32,7 +32,7 @@ export default async function ProductPage({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="flex h-72 items-center justify-center overflow-hidden rounded-3xl bg-primary-light text-9xl md:h-96">
+        <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl bg-primary-light text-9xl">
           <ProductImage url={product.imageUrl} emoji={product.emoji} alt={product.name} size={900} />
         </div>
 
