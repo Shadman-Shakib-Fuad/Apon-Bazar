@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import QtyInput from "@/components/cart/QtyInput";
 import ProductImage from "@/components/shop/ProductImage";
 import { formatPrice } from "@/lib/utils";
 
@@ -30,7 +31,7 @@ export default function CartPage() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-2xl font-extrabold text-gray-900">My Cart</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Each shop has its own order, so you check out separately for each shop.
+        Each shop has its own order, so you check out separately for each shop. Tip: double-click a quantity to type a number.
       </p>
 
       <div className="mt-6 space-y-6">
@@ -65,7 +66,7 @@ export default function CartPage() {
                       >
                         <Minus size={14} />
                       </button>
-                      <span className="w-6 text-center text-sm font-semibold">{item.qty}</span>
+                      <QtyInput value={item.qty} onChange={(n) => updateQty(item.productId, n)} />
                       <button
                         onClick={() => updateQty(item.productId, item.qty + 1)}
                         className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50"
