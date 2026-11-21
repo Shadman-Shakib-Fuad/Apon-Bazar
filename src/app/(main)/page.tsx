@@ -3,6 +3,7 @@ import { Star, MapPin } from "lucide-react";
 import HeroSlider from "@/components/shop/HeroSlider";
 import ProductCard from "@/components/shop/ProductCard";
 import FilterBar from "@/components/shop/FilterBar";
+import LiveSearchBox from "@/components/shop/LiveSearchBox";
 import { searchProducts, getShops } from "@/lib/data";
 
 // Ek page e koyta product dekhabe: 6 row x 4 product = 24
@@ -111,20 +112,10 @@ export default async function Home({
           <p className="mx-auto mt-3 max-w-2xl text-sm text-white/90 md:text-base">
             Fresh products from local shops in your neighborhood, delivered to your door.
           </p>
-          <form
-            action="/"
-            className="mx-auto mt-6 flex max-w-xl overflow-hidden rounded-full bg-white shadow-lg"
-          >
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="What are you looking for? tomato, fish, milk..."
-              className="w-full px-5 py-3 text-sm outline-none"
-            />
-            <button className="bg-accent px-6 text-sm font-semibold text-white hover:opacity-90">
-              Search
-            </button>
-          </form>
+          <LiveSearchBox
+            variant="hero"
+            placeholder="What are you looking for? tomato, fish, milk..."
+          />
         </div>
       </section>
 

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Store, ShoppingCart, Search, User, Menu, X, LogOut, Heart, Bell } from "lucide-react";
+import { Suspense, useState } from "react";
+import { Store, ShoppingCart, User, Menu, X, LogOut, Heart, Bell } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import LiveSearchBox from "@/components/shop/LiveSearchBox";
 import { logoutAction } from "@/app/(auth)/actions";
 
 export type NavUser = {
@@ -52,10 +53,9 @@ export default function Navbar({ user, unread = 0 }: { user: NavUser; unread?: n
           ))}
         </nav>
 
-        <form action="/" className="ml-auto hidden max-w-xs flex-1 items-center rounded-full border border-gray-200 bg-cream px-3 md:flex">
-          <Search size={16} className="text-gray-400" />
-          <input name="q" placeholder="Search products..." className="w-full bg-transparent px-2 py-2 text-sm outline-none" />
-        </form>
+        <Suspense fallback={null}>
+          <LiveSearchBox variant="nav" placeholder="Search products..." />
+        </Suspense>
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
           {user && (
@@ -130,10 +130,9 @@ export default function Navbar({ user, unread = 0 }: { user: NavUser; unread?: n
 
       {open && (
         <div className="border-t border-black/5 bg-white px-4 py-3 md:hidden">
-          <form action="/" className="mb-3 flex items-center rounded-full border border-gray-200 bg-cream px-3">
-            <Search size={16} className="text-gray-400" />
-            <input name="q" placeholder="Search products..." className="w-full bg-transparent px-2 py-2 text-sm outline-none" />
-          </form>
+          <Suspense fallback={null}>
+            <LiveSearchBox variant="mobile" placeholder="Search products..." />
+          </Suspense>
           {links.map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-gray-700">
               {l.label}
