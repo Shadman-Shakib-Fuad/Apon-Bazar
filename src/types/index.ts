@@ -110,3 +110,17 @@ export type AdminLogView = {
   message: string;
   time: string;
 };
+
+// Kache er shop khujar result
+export type NearbyShop = {
+  id: string;
+  name: string;
+  emoji: string;
+  area: string;
+  rating: number;
+  reviewCount: number;
+  deliveryCharge: number;
+  lat: number;
+  lng: number;
+  distanceKm: number;
+};

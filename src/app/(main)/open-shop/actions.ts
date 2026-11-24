@@ -13,6 +13,8 @@ const schema = z.object({
   area: z.string().trim().min(2).max(60),
   emoji: z.string().min(1).max(8),
   deliveryCharge: z.number().min(0).max(500),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
 });
 
 export async function createShop(input: unknown): Promise<Result> {
@@ -27,7 +29,13 @@ export async function createShop(input: unknown): Promise<Result> {
     return { ok: false, error: "You already have a shop." };
   }
 
-  await Shop.create({ ...parsed.data, ownerId: user.id, ownerName: user.name ?? "Seller" });
+  const { lat, lng, ...details } = parsed.data;
+  await Shop.create({
+    ...details,
+    ownerId: user.id,
+    ownerName: user.name ?? "Seller",
+    location: { type: "Point" as const, coordinates: [lng, lat] },
+  });
 
   revalidatePath("/", "layout");
   return { ok: true };

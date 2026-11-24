@@ -16,6 +16,7 @@ export type NavUser = {
 const links = [
   { href: "/", label: "Home" },
   { href: "/shops", label: "Shops" },
+  { href: "/nearby", label: "Nearby" },
   { href: "/orders", label: "My Orders" },
 ];
 

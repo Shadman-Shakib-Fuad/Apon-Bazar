@@ -112,6 +112,12 @@ export default async function Home({
           <p className="mx-auto mt-3 max-w-2xl text-sm text-white/90 md:text-base">
             Fresh products from local shops in your neighborhood, delivered to your door.
           </p>
+          <Link
+            href="/nearby"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-sm font-semibold text-primary-dark shadow hover:bg-white"
+          >
+            📍 Find shops near me
+          </Link>
           <LiveSearchBox
             variant="hero"
             placeholder="What are you looking for? tomato, fish, milk..."

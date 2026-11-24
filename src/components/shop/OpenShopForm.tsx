@@ -3,20 +3,32 @@
 import { useState, useTransition, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createShop } from "@/app/(main)/open-shop/actions";
+import LocationPicker from "@/components/map/LocationPicker";
+import type { LatLng } from "@/lib/geoUtils";
 
 const emojis = ["🏪", "🥬", "🐟", "🥛", "🛒", "🍞", "🍎", "🍗"];
 
 export default function OpenShopForm() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", area: "", emoji: "🏪", deliveryCharge: "30" });
+  const [pos, setPos] = useState<LatLng | null>(null);
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+    if (!pos) {
+      setError("Please mark your shop location on the map.");
+      return;
+    }
     startTransition(async () => {
-      const res = await createShop({ ...form, deliveryCharge: Number(form.deliveryCharge) });
+      const res = await createShop({
+        ...form,
+        deliveryCharge: Number(form.deliveryCharge),
+        lat: pos.lat,
+        lng: pos.lng,
+      });
       if (res.ok) router.push("/seller");
       else setError(res.error);
     });
@@ -44,12 +56,19 @@ export default function OpenShopForm() {
           ))}
         </div>
       </div>
+
       <input required placeholder="Shop name" className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
       <input required placeholder="Area (e.g. Main Bazar)" className={input} value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} />
       <div>
         <p className="mb-1 text-sm font-medium text-gray-700">Delivery charge (৳)</p>
         <input required type="number" min="0" max="500" className={input} value={form.deliveryCharge} onChange={(e) => setForm({ ...form, deliveryCharge: e.target.value })} />
       </div>
+
+      <div>
+        <p className="mb-2 text-sm font-medium text-gray-700">Shop location</p>
+        <LocationPicker value={pos} onChange={setPos} />
+      </div>
+
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
       <button
         disabled={pending}

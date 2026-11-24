@@ -17,6 +17,7 @@ export default async function SellerLayout({ children }: { children: React.React
           { href: "/seller", label: "Dashboard", icon: "dashboard" },
           { href: "/seller/products", label: "My Products", icon: "products" },
           { href: "/seller/orders", label: "Orders", icon: "orders" },
+          { href: "/seller/location", label: "Shop Location", icon: "shops" },
         ]}
       />
       <div className="lg:pl-64">
