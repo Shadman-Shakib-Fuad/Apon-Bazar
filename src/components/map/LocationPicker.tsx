@@ -11,9 +11,13 @@ import { DEFAULT_CENTER, type LatLng } from "@/lib/geoUtils";
 export default function LocationPicker({
   value,
   onChange,
+  icon = "🏪",
+  hint,
 }: {
   value: LatLng | null;
   onChange: (p: LatLng) => void;
+  icon?: string;
+  hint?: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -69,7 +73,7 @@ export default function LocationPicker({
       if (!markerRef.current) {
         const marker = L.marker([value.lat, value.lng], {
           draggable: true,
-          icon: emojiIcon(L, "🏪", true),
+          icon: emojiIcon(L, icon, true),
         }).addTo(map);
         marker.on("dragend", () => {
           const p = marker.getLatLng();
@@ -139,7 +143,7 @@ export default function LocationPicker({
       <p className="mt-2 text-xs text-gray-500">
         {value
           ? `Pin location: ${value.lat.toFixed(5)}, ${value.lng.toFixed(5)}. Drag the pin or tap the map to adjust it.`
-          : "Tap the map or use your current location to place the pin on your exact shop location."}
+          : (hint ?? "Tap the map or use your current location to place the pin on your exact shop location.")}
       </p>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>

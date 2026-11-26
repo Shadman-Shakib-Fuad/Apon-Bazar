@@ -92,10 +92,10 @@ export default function CartPage() {
                   <span>Subtotal</span> <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Delivery charge</span> <span>{formatPrice(delivery)}</span>
+                  <span>Delivery charge</span> <span>Calculated at checkout</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-gray-900">
-                  <span>Total</span> <span>{formatPrice(subtotal + delivery)}</span>
+                  <span>Items total</span> <span>{formatPrice(subtotal)}</span>
                 </div>
               </div>
 

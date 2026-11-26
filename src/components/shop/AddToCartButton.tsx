@@ -10,7 +10,8 @@ export default function AddToCartButton({ product }: { product: ProductView }) {
   const { addItem } = useCart();
   const toast = useToast();
   const [added, setAdded] = useState(false);
-  const unavailable = product.stock === 0 || product.shopStatus === "restricted";
+  const unavailable =
+    product.stock === 0 || product.shopStatus === "restricted" || !product.shopOpen;
 
   function handleAdd() {
     addItem({

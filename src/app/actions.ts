@@ -13,6 +13,7 @@ import Report from "@/models/Report";
 import { notify } from "@/lib/notify";
 import { orderCode } from "@/lib/queries";
 import { LOW_STOCK } from "@/lib/utils";
+import { calcDelivery, hoursLabel, isShopOpen } from "@/lib/shopRules";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -23,6 +24,8 @@ const orderSchema = z.object({
     .min(1),
   deliveryType: z.enum(["home", "pickup"]),
   paymentMethod: z.enum(["stripe", "cod"]),
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
   customerName: z.string().trim().min(2).max(80),
   phone: z.string().trim().min(6).max(20),
   address: z.string().trim().max(250),
@@ -56,6 +59,10 @@ export async function placeOrder(
     return { ok: false, error: "This shop is restricted and cannot accept orders." };
   }
 
+  if (!isShopOpen(shop)) {
+    return { ok: false, error: `This shop is closed right now. ${hoursLabel(shop)}.` };
+  }
+
   const products = await Product.find({
     _id: { $in: d.items.map((i) => i.productId) },
     shopId: shop._id,
@@ -81,7 +88,15 @@ export async function placeOrder(
   }
 
   const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
-  const deliveryCharge = d.deliveryType === "home" ? shop.deliveryCharge : 0;
+  let deliveryCharge = 0;
+  let deliveryDistanceKm: number | undefined;
+  if (d.deliveryType === "home") {
+    const dest = d.lat !== undefined && d.lng !== undefined ? { lat: d.lat, lng: d.lng } : null;
+    const quote = calcDelivery(shop, dest);
+    if (!quote.ok) return { ok: false, error: quote.error };
+    deliveryCharge = quote.charge;
+    deliveryDistanceKm = quote.distanceKm;
+  }
 
   const order = await Order.create({
     shopId: shop._id,
@@ -90,6 +105,9 @@ export async function placeOrder(
     items: lines,
     subtotal,
     deliveryCharge,
+    deliveryDistanceKm,
+    deliveryLat: d.deliveryType === "home" ? d.lat : undefined,
+    deliveryLng: d.deliveryType === "home" ? d.lng : undefined,
     total: subtotal + deliveryCharge,
     deliveryType: d.deliveryType,
     customerName: d.customerName,

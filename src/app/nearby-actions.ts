@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { connectDB } from "@/lib/mongodb";
 import Shop, { ShopDoc } from "@/models/Shop";
+import { isShopOpen } from "@/lib/shopRules";
 import type { NearbyShop } from "@/types";
 
 const schema = z.object({
@@ -50,6 +51,7 @@ export async function findNearbyShops(
       lat: s.location!.coordinates[1],
       lng: s.location!.coordinates[0],
       distanceKm: s.distanceM / 1000,
+      isOpen: isShopOpen(s),
     })),
   };
 }

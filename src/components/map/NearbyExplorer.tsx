@@ -213,7 +213,16 @@ export default function NearbyExplorer() {
                   {s.emoji}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate font-semibold text-gray-900">{s.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate font-semibold text-gray-900">{s.name}</h3>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        s.isOpen ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
+                      }`}
+                    >
+                      {s.isOpen ? "Open" : "Closed"}
+                    </span>
+                  </div>
                   <p className="flex items-center gap-1 text-xs text-gray-500">
                     <MapPin size={12} /> {s.area}
                   </p>

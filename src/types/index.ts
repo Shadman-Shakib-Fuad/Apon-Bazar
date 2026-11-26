@@ -1,4 +1,7 @@
 export type ShopView = {
+  isOpen?: boolean;
+  hours?: string;
+  deliveryRadiusKm?: number;
   id: string;
   name: string;
   area: string;
@@ -11,6 +14,7 @@ export type ShopView = {
 
 // Customer ke dekhano product (costPrice ekhane nai)
 export type ProductView = {
+  shopOpen: boolean;
   id: string;
   shopId: string;
   shopName: string;
@@ -113,6 +117,7 @@ export type AdminLogView = {
 
 // Kache er shop khujar result
 export type NearbyShop = {
+  isOpen: boolean;
   id: string;
   name: string;
   emoji: string;
@@ -124,3 +129,14 @@ export type NearbyShop = {
   lng: number;
   distanceKm: number;
 };
+// Checkout e delivery charge er hishab
+export type DeliveryQuote =
+  | {
+      ok: true;
+      needsLocation: boolean;
+      charge: number | null;
+      distanceKm?: number;
+      open: boolean;
+      hours: string;
+    }
+  | { ok: false; error: string; open: boolean; hours: string };

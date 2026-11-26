@@ -20,7 +20,8 @@ export default function ProductCard({ product }: { product: ProductView }) {
   const diff = priceDiff(product.price, product.yesterdayPrice);
   const restricted = product.shopStatus === "restricted";
   const out = product.stock === 0;
-  const unavailable = restricted || out;
+  const closed = !product.shopOpen;
+  const unavailable = restricted || out || closed;
 
   const cartItem = {
     productId: product.id,
@@ -69,7 +70,7 @@ export default function ProductCard({ product }: { product: ProductView }) {
 
       {unavailable && (
         <span className="absolute right-5 top-5 rounded-full bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-white">
-          {restricted ? "Shop restricted" : "Out of stock"}
+          {restricted ? "Shop restricted" : closed ? "Shop closed" : "Out of stock"}
         </span>
       )}
 

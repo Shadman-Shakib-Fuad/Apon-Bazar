@@ -32,7 +32,17 @@ export default async function ShopPage({
           {shop.emoji}
         </div>
         <div className="flex-1">
-          <h1 className="text-2xl font-extrabold text-gray-900">{shop.name}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-extrabold text-gray-900">{shop.name}</h1>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                shop.isOpen === false ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"
+              }`}
+            >
+              {shop.isOpen === false ? "Closed now" : "Open now"}
+            </span>
+          </div>
+          {shop.hours && <p className="mt-1 text-xs text-gray-500">{shop.hours}</p>}
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
             <span className="flex items-center gap-1">
               <MapPin size={15} /> {shop.area}
@@ -42,7 +52,10 @@ export default async function ShopPage({
               <b>{shop.rating}</b> ({shop.reviewCount} reviews)
             </span>
             <span className="flex items-center gap-1">
-              <Truck size={15} /> Delivery {formatPrice(shop.deliveryCharge)}
+              <Truck size={15} />{" "}
+              {shop.deliveryRadiusKm
+                ? `Delivers within ${shop.deliveryRadiusKm} km`
+                : `Delivery ${formatPrice(shop.deliveryCharge)}`}
             </span>
           </div>
           <ReportButton shopId={shop.id} loggedIn={!!user} />

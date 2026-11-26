@@ -4,6 +4,7 @@ import Shop, { ShopDoc } from "@/models/Shop";
 import Product, { ProductDoc } from "@/models/Product";
 import PriceHistory from "@/models/PriceHistory";
 import type { ShopView, ProductView } from "@/types";
+import { hoursLabel, isShopOpen } from "@/lib/shopRules";
 
 function escapeRegex(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -19,6 +20,9 @@ function toShop(s: ShopDoc): ShopView {
     deliveryCharge: s.deliveryCharge,
     rating: s.rating,
     reviewCount: s.reviewCount,
+    isOpen: isShopOpen(s),
+    hours: hoursLabel(s),
+    deliveryRadiusKm: s.deliveryRadiusKm ?? 0,
   };
 }
 
@@ -31,6 +35,7 @@ export function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductVi
     shopEmoji: shop?.emoji ?? "🏪",
     shopRating: shop?.rating ?? 0,
     shopReviewCount: shop?.reviewCount ?? 0,
+    shopOpen: shop ? isShopOpen(shop) : true,
     shopStatus: (shop?.status ?? "active") as ProductView["shopStatus"],
     deliveryCharge: shop?.deliveryCharge ?? 0,
     name: p.name,
