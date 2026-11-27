@@ -11,7 +11,7 @@ function escapeRegex(s: string) {
 }
 
 // Pending ba rejected shop public e dekhabe na. Purono shop (field nai) dekhabe
-const VISIBLE = { approvalStatus: { $nin: ["pending", "rejected"] } };
+const VISIBLE: Record<string, unknown> = { approvalStatus: { $nin: ["pending", "rejected"] } };
 
 function toShop(s: ShopDoc): ShopView {
   return {
