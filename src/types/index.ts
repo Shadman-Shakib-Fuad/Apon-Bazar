@@ -1,4 +1,5 @@
 export type ShopView = {
+  verified?: boolean;
   isOpen?: boolean;
   hours?: string;
   deliveryRadiusKm?: number;
@@ -14,6 +15,7 @@ export type ShopView = {
 
 // Customer ke dekhano product (costPrice ekhane nai)
 export type ProductView = {
+  shopVerified: boolean;
   shopOpen: boolean;
   id: string;
   shopId: string;
@@ -88,6 +90,7 @@ export type SellerProductView = {
 };
 
 export type AdminShopView = {
+  approval: "pending" | "approved" | "rejected" | "legacy";
   id: string;
   name: string;
   owner: string;

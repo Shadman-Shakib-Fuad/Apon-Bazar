@@ -227,7 +227,14 @@ export default async function Home({
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-light text-2xl">
                   {s.emoji}
                 </div>
-                <h3 className="mt-3 font-semibold text-gray-900">{s.name}</h3>
+                <h3 className="mt-3 font-semibold text-gray-900">
+                  {s.name}{" "}
+                  {s.verified && (
+                    <span className="text-blue-500" title="Verified shop">
+                      ✔
+                    </span>
+                  )}
+                </h3>
                 <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
                   <MapPin size={12} /> {s.area}
                 </p>

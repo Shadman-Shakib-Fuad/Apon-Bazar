@@ -34,6 +34,11 @@ export default async function ShopPage({
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-extrabold text-gray-900">{shop.name}</h1>
+            {shop.verified && (
+              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                ✔ Verified shop
+              </span>
+            )}
             <span
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                 shop.isOpen === false ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"

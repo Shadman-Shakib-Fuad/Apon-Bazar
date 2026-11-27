@@ -32,7 +32,7 @@ export async function findNearbyShops(
         distanceField: "distanceM",
         maxDistance: parsed.data.radiusKm * 1000,
         spherical: true,
-        query: { status: "active" },
+        query: { status: "active", approvalStatus: { $nin: ["pending", "rejected"] } },
       },
     },
     { $limit: 50 },

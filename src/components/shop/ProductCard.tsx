@@ -88,6 +88,11 @@ export default function ProductCard({ product }: { product: ProductView }) {
         </Link>
         <p className="flex items-center gap-1.5 text-xs text-gray-500">
           <span className="truncate">{product.shopName}</span>
+          {product.shopVerified && (
+            <span className="shrink-0 text-blue-500" title="Verified shop">
+              ✔
+            </span>
+          )}
           {product.shopReviewCount > 0 ? (
             <span className="flex shrink-0 items-center gap-0.5 font-semibold text-gray-700">
               <Star size={12} className="fill-accent text-accent" />

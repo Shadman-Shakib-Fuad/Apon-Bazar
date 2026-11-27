@@ -31,6 +31,9 @@ const ShopSchema = new Schema(
     deliveryRadiusKm: { type: Number, default: 0, min: 0 },
     deliveryBaseCharge: { type: Number, min: 0 },
     deliveryPerKm: { type: Number, default: 0, min: 0 },
+
+    // Admin approve na korle public e dekhabe na. Purono shop e ei field nai, ogulo dekhabe
+    approvalStatus: { type: String, enum: ["pending", "approved", "rejected"] },
   },
   { timestamps: true }
 );

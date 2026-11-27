@@ -1,4 +1,5 @@
 import { Users, Store, ShoppingBag, Banknote, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 import StatCard from "@/components/dashboard/StatCard";
 import SimpleBarChart from "@/components/dashboard/SimpleBarChart";
 import { getAdminOverview, getAdminShops } from "@/lib/queries";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminDashboard() {
   const [o, shops] = await Promise.all([getAdminOverview(), getAdminShops()]);
   const underReview = shops.filter((s) => s.status === "active" && isUnderReview(s));
+  const awaiting = shops.filter((s) => s.approval === "pending");
 
   return (
     <div>
@@ -21,6 +23,15 @@ export default async function AdminDashboard() {
         <StatCard title="Total Orders" value={o.orders.toLocaleString()} icon={<ShoppingBag size={18} />} tone="orange" />
         <StatCard title="Total Sales" value={formatPrice(o.sales)} icon={<Banknote size={18} />} tone="green" valueClass="text-green-700" />
       </div>
+
+      {awaiting.length > 0 && (
+        <Link
+          href="/admin/shops"
+          className="mt-6 block rounded-2xl bg-amber-50 p-4 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+        >
+          {awaiting.length} shop{awaiting.length === 1 ? "" : "s"} waiting for approval →
+        </Link>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
         <section className="rounded-3xl border border-black/5 bg-white p-6">

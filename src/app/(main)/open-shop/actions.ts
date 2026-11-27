@@ -35,6 +35,7 @@ export async function createShop(input: unknown): Promise<Result> {
     ownerId: user.id,
     ownerName: user.name ?? "Seller",
     location: { type: "Point" as const, coordinates: [lng, lat] },
+    approvalStatus: "pending" as const,
   });
 
   revalidatePath("/", "layout");

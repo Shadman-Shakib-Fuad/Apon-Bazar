@@ -10,6 +10,9 @@ function escapeRegex(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Pending ba rejected shop public e dekhabe na. Purono shop (field nai) dekhabe
+const VISIBLE = { approvalStatus: { $nin: ["pending", "rejected"] } };
+
 function toShop(s: ShopDoc): ShopView {
   return {
     id: s._id.toString(),
@@ -23,6 +26,7 @@ function toShop(s: ShopDoc): ShopView {
     isOpen: isShopOpen(s),
     hours: hoursLabel(s),
     deliveryRadiusKm: s.deliveryRadiusKm ?? 0,
+    verified: s.approvalStatus === "approved",
   };
 }
 
@@ -33,11 +37,12 @@ export function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductVi
     shopId: p.shopId.toString(),
     shopName: shop?.name ?? "",
     shopEmoji: shop?.emoji ?? "🏪",
+    shopStatus: (shop?.status ?? "active") as ProductView["shopStatus"],
+    deliveryCharge: shop?.deliveryCharge ?? 0,
     shopRating: shop?.rating ?? 0,
     shopReviewCount: shop?.reviewCount ?? 0,
     shopOpen: shop ? isShopOpen(shop) : true,
-    shopStatus: (shop?.status ?? "active") as ProductView["shopStatus"],
-    deliveryCharge: shop?.deliveryCharge ?? 0,
+    shopVerified: shop?.approvalStatus === "approved",
     name: p.name,
     category: p.category,
     price: p.price,
@@ -49,14 +54,15 @@ export function toProduct(p: ProductDoc, shops: Map<string, ShopDoc>): ProductVi
   };
 }
 
+// Shudhu public e dekhano jabe emon shop gulo
 export async function shopMap() {
-  const shops = await Shop.find().lean<ShopDoc[]>();
+  const shops = await Shop.find(VISIBLE).lean<ShopDoc[]>();
   return new Map(shops.map((s) => [s._id.toString(), s]));
 }
 
 export async function getShops(): Promise<ShopView[]> {
   await connectDB();
-  const shops = await Shop.find().sort({ _id: 1 }).lean<ShopDoc[]>();
+  const shops = await Shop.find(VISIBLE).sort({ _id: 1 }).lean<ShopDoc[]>();
   return shops.map(toShop);
 }
 
@@ -64,7 +70,9 @@ export async function getShop(id: string): Promise<ShopView | null> {
   if (!mongoose.isValidObjectId(id)) return null;
   await connectDB();
   const shop = await Shop.findById(id).lean<ShopDoc>();
-  return shop ? toShop(shop) : null;
+  if (!shop) return null;
+  if (shop.approvalStatus === "pending" || shop.approvalStatus === "rejected") return null;
+  return toShop(shop);
 }
 
 export async function getProducts(
@@ -80,7 +88,7 @@ export async function getProducts(
     Product.find(filter).select("-costPrice").sort({ _id: 1 }).lean<ProductDoc[]>(),
     shopMap(),
   ]);
-  return products.map((p) => toProduct(p, shops));
+  return products.filter((p) => shops.has(p.shopId.toString())).map((p) => toProduct(p, shops));
 }
 
 export async function getProduct(id: string): Promise<ProductView | null> {
@@ -90,7 +98,8 @@ export async function getProduct(id: string): Promise<ProductView | null> {
     Product.findById(id).select("-costPrice").lean<ProductDoc>(),
     shopMap(),
   ]);
-  return product ? toProduct(product, shops) : null;
+  if (!product || !shops.has(product.shopId.toString())) return null;
+  return toProduct(product, shops);
 }
 
 export async function getPriceHistory(productId: string) {
@@ -161,5 +170,5 @@ export async function searchProducts(opts: ProductSearch = {}): Promise<ProductV
     shopMap(),
   ]);
 
-  return products.map((p) => toProduct(p, shops));
+  return products.filter((p) => shops.has(p.shopId.toString())).map((p) => toProduct(p, shops));
 }

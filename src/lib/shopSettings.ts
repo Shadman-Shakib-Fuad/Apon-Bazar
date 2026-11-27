@@ -21,3 +21,17 @@ export async function getSellerShopSettings() {
     deliveryPerKm: s.deliveryPerKm ?? 0,
   };
 }
+export async function getSellerApproval(): Promise<
+  "pending" | "approved" | "rejected" | "legacy" | null
+> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "seller") return null;
+
+  await connectDB();
+  const s = await Shop.findOne({ ownerId: user.id })
+    .select("approvalStatus")
+    .lean<{ approvalStatus?: string }>();
+  if (!s) return null;
+
+  return (s.approvalStatus ?? "legacy") as "pending" | "approved" | "rejected" | "legacy";
+}

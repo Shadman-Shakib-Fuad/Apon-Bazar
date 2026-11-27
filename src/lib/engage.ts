@@ -42,7 +42,7 @@ export async function getWishlistProducts(userId: string): Promise<ProductView[]
   const result: ProductView[] = [];
   for (const r of rows) {
     const p = pmap.get(r.productId.toString());
-    if (p) result.push(toProduct(p, shops));
+    if (p && shops.has(p.shopId.toString())) result.push(toProduct(p, shops));
   }
   return result;
 }

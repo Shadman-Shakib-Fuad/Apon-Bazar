@@ -278,6 +278,7 @@ export async function getAdminShops(): Promise<AdminShopView[]> {
     rating: s.rating,
     reviewCount: s.reviewCount,
     pendingReports: pendingMap.get(s._id.toString()) ?? 0,
+    approval: (s.approvalStatus ?? "legacy") as AdminShopView["approval"],
     sales: salesMap.get(s._id.toString()) ?? 0,
     status: s.status as AdminShopView["status"],
   }));

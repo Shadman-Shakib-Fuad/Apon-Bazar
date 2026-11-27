@@ -30,7 +30,14 @@ export default async function ShopsPage() {
                 </span>
               )}
             </div>
-            <h2 className="mt-3 text-lg font-bold text-gray-900">{s.name}</h2>
+            <h2 className="mt-3 text-lg font-bold text-gray-900">
+              {s.name}{" "}
+              {s.verified && (
+                <span className="text-base text-blue-500" title="Verified shop">
+                  ✔
+                </span>
+              )}
+            </h2>
             <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
               <MapPin size={14} /> {s.area}
             </p>

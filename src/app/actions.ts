@@ -59,6 +59,10 @@ export async function placeOrder(
     return { ok: false, error: "This shop is restricted and cannot accept orders." };
   }
 
+  if (shop.approvalStatus === "pending" || shop.approvalStatus === "rejected") {
+    return { ok: false, error: "This shop is not available yet." };
+  }
+
   if (!isShopOpen(shop)) {
     return { ok: false, error: `This shop is closed right now. ${hoursLabel(shop)}.` };
   }

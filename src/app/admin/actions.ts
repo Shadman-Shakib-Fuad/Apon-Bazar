@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/session";
 import Shop, { ShopDoc } from "@/models/Shop";
 import Report from "@/models/Report";
 import AdminLog from "@/models/AdminLog";
+import { notify } from "@/lib/notify";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -59,6 +60,40 @@ export async function handleReport(
     });
   }
   await report.save();
+
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+export async function setShopApproval(
+  shopId: string,
+  status: "approved" | "rejected"
+): Promise<Result> {
+  const admin = await getAdmin();
+  if (!admin) return { ok: false, error: "Only admins can do this." };
+  if (!mongoose.isValidObjectId(shopId)) return { ok: false, error: "Shop not found." };
+  if (status !== "approved" && status !== "rejected") {
+    return { ok: false, error: "Invalid status." };
+  }
+
+  await connectDB();
+  const shop = await Shop.findById(shopId).lean<ShopDoc>();
+  if (!shop) return { ok: false, error: "Shop not found." };
+
+  await Shop.updateOne({ _id: shopId }, { approvalStatus: status });
+  await AdminLog.create({
+    message: `${admin.name ?? "Admin"} ${status} the shop "${shop.name}"`,
+  });
+
+  if (shop.ownerId) {
+    await notify(shop.ownerId.toString(), {
+      title: status === "approved" ? "Shop approved ✅" : "Shop not approved",
+      message:
+        status === "approved"
+          ? `${shop.name} is now visible to customers and has the Verified badge.`
+          : `${shop.name} was not approved. Please contact the admin.`,
+      link: "/seller",
+    });
+  }
 
   revalidatePath("/", "layout");
   return { ok: true };
